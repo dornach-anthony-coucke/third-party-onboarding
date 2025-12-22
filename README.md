@@ -1,6 +1,6 @@
 # Third-Party Onboarding Monorepo
 
-A monorepo for third-party onboarding services with NestJS API and reusable packages, powered by Nx.
+A monorepo for third-party onboarding services with NestJS APIs and reusable packages, powered by Nx.
 
 ## Project Structure
 
@@ -10,7 +10,8 @@ third-party-onboarding/
 │   ├── drizzle-core/              # Drizzle ORM database configuration
 │   └── database-nest-module/      # NestJS Database module
 ├── apps/
-│   └── api/                       # NestJS API application
+│   └── write-api/                 # NestJS Write API (commands)
+├── infra/                         # Infrastructure (Docker Compose)
 ├── nx.json                        # Nx configuration
 └── pnpm-workspace.yaml            # PNPM workspace configuration
 ```
@@ -35,13 +36,16 @@ Reusable NestJS Database module that wraps drizzle-core for use in NestJS applic
 
 ## Applications
 
-### API (@third-party-onboarding/api)
+### Write API (@third-party-onboarding/write-api)
 
-NestJS REST API application.
+NestJS REST API application for handling commands (write operations).
 
 - Built with `tsup` (instead of nest-cli)
 - Tested with `Vitest` (no e2e tests initially)
 - Uses the database-nest-module for database access
+- Command handling for write operations
+
+**Note:** A Read API (for queries) will be added in the future.
 
 ## Getting Started
 
@@ -89,18 +93,24 @@ pnpm run format
 pnpm run graph
 
 # Run a specific project's target
-pnpm nx run api:build
+pnpm nx run write-api:build
 pnpm nx run drizzle-core:test
+
+# Run Write API with global commands
+pnpm run write-api:dev
+pnpm run write-api:build
+pnpm run write-api:start
+pnpm run write-api:test
 ```
 
-### Running the API
+### Running the Write API
 
 ```bash
-# Build dependencies and run API
-pnpm nx run api:dev
+# Start in development mode (from root)
+pnpm run write-api:dev
 
-# Or navigate to the api app
-cd apps/api
+# Or navigate to the write-api app
+cd apps/write-api
 
 # Create .env file (copy from .env.example)
 cp .env.example .env
@@ -109,11 +119,11 @@ cp .env.example .env
 pnpm run dev
 
 # Or build and start in production
-pnpm nx run api:build
-pnpm nx run api:start
+pnpm run write-api:build
+pnpm run write-api:start
 ```
 
-The API will be available at `http://localhost:3000/api`
+The Write API will be available at `http://localhost:3000/api`
 
 ## Nx Features
 

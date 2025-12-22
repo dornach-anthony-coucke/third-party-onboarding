@@ -1,9 +1,9 @@
 {
-  "name": "api",
+  "name": "write-api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/api/src",
+  "sourceRoot": "apps/write-api/src",
   "projectType": "application",
-  "tags": ["type:app", "scope:api"],
+  "tags": ["type:app", "scope:write-api"],
   "targets": {
     "build": {
       "executor": "nx:run-commands",

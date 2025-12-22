@@ -30,7 +30,7 @@ This is an Nx-powered monorepo with pnpm workspaces:
 ```
 third-party-onboarding/
 ├── apps/                           # Applications
-│   └── api/                        # NestJS API application
+│   └── write-api/                  # NestJS Write API (commands)
 │       └── project.json            # Nx project configuration
 ├── packages/                       # Reusable packages
 │   ├── drizzle-core/              # Drizzle DB core configuration
@@ -144,7 +144,7 @@ pnpm run test
 Run tests for a specific package:
 
 ```bash
-pnpm nx run api:test
+pnpm nx run write-api:test
 ```
 
 Run tests only for affected projects:
@@ -217,16 +217,16 @@ PORT=3000
 pnpm run build
 ```
 
-3. Start the API:
+3. Start the Write API:
 
 ```bash
-pnpm nx run api:dev
+pnpm run write-api:dev
 # or
-cd apps/api
+cd apps/write-api
 pnpm run dev
 ```
 
-The API will be available at `http://localhost:3000/api`
+The Write API will be available at `http://localhost:3000/api`
 
 ## Database Setup
 

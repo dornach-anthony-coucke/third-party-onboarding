@@ -1,6 +1,6 @@
-# API Application
+# Write API Application
 
-NestJS API application using the database-nest-module.
+NestJS Write API application for handling commands, using the database-nest-module.
 
 ## Features
 
@@ -10,6 +10,7 @@ NestJS API application using the database-nest-module.
 - Health check endpoint
 - CORS enabled
 - Global API prefix
+- Command handling (write operations)
 
 ## Development
 
@@ -17,7 +18,10 @@ NestJS API application using the database-nest-module.
 # Install dependencies (from root)
 pnpm install
 
-# Start development server
+# Start development server (from root)
+pnpm run write-api:dev
+
+# Or from this directory
 pnpm run dev
 
 # Build for production
@@ -41,7 +45,7 @@ pnpm run test:coverage
 Create a `.env` file in the root of the project:
 
 ```env
-DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/third-party-onboarding
 DATABASE_SSL=false
 PORT=3000
 ```

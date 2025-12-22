@@ -42,7 +42,7 @@ importers:
         specifier: ^8
         version: 8.50.0(eslint@9.39.2)(typescript@5.9.3)
 
-  apps/api:
+  apps/write-api:
     dependencies:
       '@nestjs/common':
         specifier: ^10.3.0

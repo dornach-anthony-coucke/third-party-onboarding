@@ -1,8 +1,8 @@
 {
-  "name": "@third-party-onboarding/api",
+  "name": "@third-party-onboarding/write-api",
   "version": "0.0.1",
   "private": true,
-  "description": "NestJS API application",
+  "description": "NestJS Write API application for commands",
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsup",
