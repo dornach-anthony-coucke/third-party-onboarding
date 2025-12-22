@@ -1,6 +1,6 @@
 # Third-Party Onboarding Monorepo
 
-A monorepo for third-party onboarding services with NestJS API and reusable packages.
+A monorepo for third-party onboarding services with NestJS API and reusable packages, powered by Nx.
 
 ## Project Structure
 
@@ -11,6 +11,7 @@ third-party-onboarding/
 │   └── database-nest-module/      # NestJS Database module
 ├── apps/
 │   └── api/                       # NestJS API application
+├── nx.json                        # Nx configuration
 └── pnpm-workspace.yaml            # PNPM workspace configuration
 ```
 
@@ -66,20 +67,39 @@ pnpm run build
 # Build all packages
 pnpm run build
 
+# Build only affected projects (since last commit)
+pnpm run build:affected
+
 # Run tests across all packages
 pnpm run test
+
+# Run tests only for affected projects
+pnpm run test:affected
 
 # Lint code
 pnpm run lint
 
+# Lint only affected projects
+pnpm run lint:affected
+
 # Format code
 pnpm run format
+
+# View dependency graph
+pnpm run graph
+
+# Run a specific project's target
+pnpm nx run api:build
+pnpm nx run drizzle-core:test
 ```
 
 ### Running the API
 
 ```bash
-# Navigate to the api app
+# Build dependencies and run API
+pnpm nx run api:dev
+
+# Or navigate to the api app
 cd apps/api
 
 # Create .env file (copy from .env.example)
@@ -89,11 +109,21 @@ cp .env.example .env
 pnpm run dev
 
 # Or build and start in production
-pnpm run build
-pnpm run start
+pnpm nx run api:build
+pnpm nx run api:start
 ```
 
 The API will be available at `http://localhost:3000/api`
+
+## Nx Features
+
+This monorepo uses Nx for:
+
+- **Smart rebuilds**: Only rebuilds affected projects
+- **Task orchestration**: Manages dependencies between projects
+- **Caching**: Caches build and test results for faster execution
+- **Parallel execution**: Runs tasks in parallel when possible
+- **Dependency graph**: Visualize project dependencies with `pnpm run graph`
 
 ## Future Plans
 
@@ -103,7 +133,7 @@ The API will be available at `http://localhost:3000/api`
 
 ## Tech Stack
 
-- **Monorepo**: PNPM Workspaces
+- **Monorepo**: Nx + PNPM Workspaces
 - **Backend**: NestJS, Express
 - **Database**: PostgreSQL, Drizzle ORM
 - **Build Tool**: tsup

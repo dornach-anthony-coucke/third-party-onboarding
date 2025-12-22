@@ -1,0 +1,267 @@
+{
+  "apps/api": {
+    "root": ["apps/api/project.json", "nx/core/project-json"],
+    "name": ["apps/api/project.json", "nx/core/project-json"],
+    "tags": ["apps/api/package.json", "nx/core/package-json"],
+    "tags.npm:private": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.targetGroups": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.targetGroups.NPM Scripts": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.targetGroups.NPM Scripts.0": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.description": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.js": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.js.packageName": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.js.packageVersion": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.js.packageMain": ["apps/api/package.json", "nx/core/package-json"],
+    "metadata.js.isInPackageManagerWorkspaces": ["apps/api/package.json", "nx/core/package-json"],
+    "targets": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev.executor": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev.options": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev.metadata": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev.options.script": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev.metadata.scriptContent": ["apps/api/package.json", "nx/core/package-json"],
+    "targets.start:dev.metadata.runCommand": ["apps/api/package.json", "nx/core/package-json"],
+    "$schema": ["apps/api/project.json", "nx/core/project-json"],
+    "sourceRoot": ["apps/api/project.json", "nx/core/project-json"],
+    "projectType": ["apps/api/project.json", "nx/core/project-json"],
+    "tags.type:app": ["apps/api/project.json", "nx/core/project-json"],
+    "tags.scope:api": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.outputs": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.dependsOn": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.dev": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.dev.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.dev.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.dev.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.dev.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.start": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.start.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.start.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.start.dependsOn": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.start.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.start.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.clean": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.clean.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.clean.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.clean.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.clean.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.lint": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.lint.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.lint.outputs": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.lint.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.lint.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.lint.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.type-check": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.type-check.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.type-check.outputs": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.type-check.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.type-check.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.type-check.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test.outputs": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:watch": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:watch.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:watch.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:watch.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:watch.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:coverage": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:coverage.executor": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:coverage.outputs": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:coverage.options": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:coverage.options.command": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.test:coverage.options.cwd": ["apps/api/project.json", "nx/core/project-json"],
+    "targets.build.cache": ["nx.json", "nx/target-defaults"],
+    "targets.build.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.lint.cache": ["nx.json", "nx/target-defaults"],
+    "targets.lint.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.type-check.cache": ["nx.json", "nx/target-defaults"],
+    "targets.type-check.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.test.cache": ["nx.json", "nx/target-defaults"],
+    "targets.test.parallelism": ["nx.json", "nx/target-defaults"]
+  },
+  "packages/database-nest-module": {
+    "root": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "name": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "tags": ["packages/database-nest-module/package.json", "nx/core/package-json"],
+    "tags.npm:private": ["packages/database-nest-module/package.json", "nx/core/package-json"],
+    "metadata.targetGroups": ["packages/database-nest-module/package.json", "nx/core/package-json"],
+    "metadata.description": ["packages/database-nest-module/package.json", "nx/core/package-json"],
+    "metadata.js": ["packages/database-nest-module/package.json", "nx/core/package-json"],
+    "metadata.js.packageName": [
+      "packages/database-nest-module/package.json",
+      "nx/core/package-json"
+    ],
+    "metadata.js.packageVersion": [
+      "packages/database-nest-module/package.json",
+      "nx/core/package-json"
+    ],
+    "metadata.js.packageMain": [
+      "packages/database-nest-module/package.json",
+      "nx/core/package-json"
+    ],
+    "metadata.js.isInPackageManagerWorkspaces": [
+      "packages/database-nest-module/package.json",
+      "nx/core/package-json"
+    ],
+    "targets": ["packages/database-nest-module/package.json", "nx/core/package-json"],
+    "$schema": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "sourceRoot": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "projectType": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "tags.type:package": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "tags.scope:database": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.build": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.build.executor": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.outputs": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.build.options": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.build.dependsOn": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.command": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.options.cwd": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.dev": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.dev.executor": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.dev.options": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.dev.options.command": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.dev.options.cwd": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.clean": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.clean.executor": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.clean.options": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.clean.options.command": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.clean.options.cwd": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.lint.executor": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.lint.outputs": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.lint.options": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.lint.options.command": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.lint.options.cwd": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.type-check": ["packages/database-nest-module/project.json", "nx/core/project-json"],
+    "targets.type-check.executor": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.type-check.outputs": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.type-check.options": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.type-check.options.command": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.type-check.options.cwd": [
+      "packages/database-nest-module/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.cache": ["nx.json", "nx/target-defaults"],
+    "targets.build.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.lint.cache": ["nx.json", "nx/target-defaults"],
+    "targets.lint.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.type-check.cache": ["nx.json", "nx/target-defaults"],
+    "targets.type-check.parallelism": ["nx.json", "nx/target-defaults"]
+  },
+  "packages/drizzle-core": {
+    "root": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "name": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "tags": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "tags.npm:private": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.targetGroups": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.description": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.js": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.js.packageName": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.js.packageVersion": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.js.packageMain": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "metadata.js.isInPackageManagerWorkspaces": [
+      "packages/drizzle-core/package.json",
+      "nx/core/package-json"
+    ],
+    "targets": ["packages/drizzle-core/package.json", "nx/core/package-json"],
+    "$schema": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "sourceRoot": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "projectType": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "tags.type:package": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "tags.scope:database": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.build": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.build.executor": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.build.outputs": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.build.options": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.build.options.command": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.build.options.cwd": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.dev": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.dev.executor": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.dev.options": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.dev.options.command": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.dev.options.cwd": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.clean": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.clean.executor": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.clean.options": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.clean.options.command": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.clean.options.cwd": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.lint": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.lint.executor": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.lint.outputs": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.lint.options": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.lint.options.command": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.lint.options.cwd": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.type-check": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.type-check.executor": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.type-check.outputs": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.type-check.options": ["packages/drizzle-core/project.json", "nx/core/project-json"],
+    "targets.type-check.options.command": [
+      "packages/drizzle-core/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.type-check.options.cwd": [
+      "packages/drizzle-core/project.json",
+      "nx/core/project-json"
+    ],
+    "targets.build.dependsOn": ["nx.json", "nx/target-defaults"],
+    "targets.build.cache": ["nx.json", "nx/target-defaults"],
+    "targets.build.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.lint.cache": ["nx.json", "nx/target-defaults"],
+    "targets.lint.parallelism": ["nx.json", "nx/target-defaults"],
+    "targets.type-check.cache": ["nx.json", "nx/target-defaults"],
+    "targets.type-check.parallelism": ["nx.json", "nx/target-defaults"]
+  }
+}

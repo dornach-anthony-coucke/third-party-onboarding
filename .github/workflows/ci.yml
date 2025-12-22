@@ -19,6 +19,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -34,14 +36,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm run lint
+      - name: Setup Nx SHAs for affected detection
+        uses: nrwl/nx-set-shas@v4
+
+      - name: Lint (affected)
+        run: pnpm nx affected -t lint --parallel=3
 
       - name: Format check
         run: pnpm run format:check
 
-      - name: Build packages
-        run: pnpm run build
+      - name: Build packages (affected)
+        run: pnpm nx affected -t build --parallel=3
 
-      - name: Run tests
-        run: pnpm run test
+      - name: Run tests (affected)
+        run: pnpm nx affected -t test --parallel=3

@@ -7,6 +7,11 @@ dist/
 build/
 *.tsbuildinfo
 
+# Nx
+.nx/cache
+graph.html
+static/
+
 # Environment variables
 .env
 .env.local

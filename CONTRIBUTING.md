@@ -25,16 +25,62 @@ pnpm run build
 
 ## Project Structure
 
-This is a pnpm workspace monorepo with the following structure:
+This is an Nx-powered monorepo with pnpm workspaces:
 
 ```
 third-party-onboarding/
 ├── apps/                           # Applications
 │   └── api/                        # NestJS API application
+│       └── project.json            # Nx project configuration
 ├── packages/                       # Reusable packages
 │   ├── drizzle-core/              # Drizzle DB core configuration
+│   │   └── project.json           # Nx project configuration
 │   └── database-nest-module/      # NestJS database module
+│       └── project.json           # Nx project configuration
+└── nx.json                        # Nx workspace configuration
 ```
+
+## Working with Nx
+
+### Nx Commands
+
+Run tasks for all projects:
+
+```bash
+pnpm nx run-many -t build
+pnpm nx run-many -t test
+pnpm nx run-many -t lint
+```
+
+Run tasks for affected projects only:
+
+```bash
+pnpm nx affected -t build
+pnpm nx affected -t test
+pnpm nx affected -t lint
+```
+
+Run a task for a specific project:
+
+```bash
+pnpm nx run api:build
+pnpm nx run drizzle-core:test
+pnpm nx run database-nest-module:lint
+```
+
+Visualize the dependency graph:
+
+```bash
+pnpm run graph
+```
+
+### Understanding Affected
+
+Nx's affected command only runs tasks on projects that are affected by your changes. This is much faster than running tasks on all projects. Nx determines affected projects by:
+
+- Analyzing git changes
+- Following dependency relationships
+- Using cached results when possible
 
 ## Working with Packages
 
@@ -42,8 +88,30 @@ third-party-onboarding/
 
 1. Create a new directory under `packages/`
 2. Add a `package.json` with the naming convention `@third-party-onboarding/<package-name>`
-3. Add your package to the workspace by running `pnpm install` at the root
+3. Create a `project.json` for Nx configuration:
+
+```json
+{
+  "name": "package-name",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/package-name/src",
+  "projectType": "library",
+  "tags": ["type:package"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "command": "tsup",
+        "cwd": "{projectRoot}"
+      }
+    }
+  }
+}
+```
+
 4. Reference it in other packages using `workspace:*` in dependencies
+5. Run `pnpm install` at the root
 
 ### Building
 
@@ -56,8 +124,13 @@ pnpm run build
 Build a specific package:
 
 ```bash
-cd packages/<package-name>
-pnpm run build
+pnpm nx run drizzle-core:build
+```
+
+Build only affected projects:
+
+```bash
+pnpm run build:affected
 ```
 
 ### Testing
@@ -71,15 +144,19 @@ pnpm run test
 Run tests for a specific package:
 
 ```bash
-cd apps/api
-pnpm run test
+pnpm nx run api:test
+```
+
+Run tests only for affected projects:
+
+```bash
+pnpm run test:affected
 ```
 
 Run tests in watch mode:
 
 ```bash
-cd apps/api
-pnpm run test:watch
+pnpm nx run api:test:watch
 ```
 
 ### Linting and Formatting
@@ -88,6 +165,12 @@ Lint all code:
 
 ```bash
 pnpm run lint
+```
+
+Lint only affected projects:
+
+```bash
+pnpm run lint:affected
 ```
 
 Format all code:
@@ -137,8 +220,10 @@ pnpm run build
 3. Start the API:
 
 ```bash
+pnpm nx run api:dev
+# or
 cd apps/api
-pnpm run start:dev
+pnpm run dev
 ```
 
 The API will be available at `http://localhost:3000/api`
