@@ -1,0 +1,42 @@
+services:
+  third-party-onboarding-manager-database:
+    image: postgres:16-alpine
+    container_name: third-party-onboarding-manager-database
+    restart: unless-stopped
+    ports:
+      - "${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
+      POSTGRES_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
+      POSTGRES_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+    volumes:
+      - third_party_onboarding_manager_database_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  third-party-onboarding-manager-write-api:
+    image: third-party-onboarding-manager-write-api
+    build:
+      context: ..
+      dockerfile: apps/write-api/Dockerfile
+    container_name: third-party-onboarding-manager-write-api
+    restart: unless-stopped
+    ports:
+      - "${WRITE_API_PORT:-3000}:3000"
+    environment:
+      WRITE_API_PORT: ${WRITE_API_PORT:-3000}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST: third-party-onboarding-manager-database
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT:-5432}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+    command: ["pnpm", "run", "write-api:dev"]
+    volumes:
+      - ../apps/write-api:/usr/src/app/apps/write-api
+
+volumes:
+  third_party_onboarding_manager_database_data:
+    driver: local

@@ -1,0 +1,69 @@
+name: Publish stable (Changesets + Docker)
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
+
+jobs:
+  publish-stable:
+    if: >
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.title == 'Version Packages' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_CONFIG_USERCONFIG: ${{ github.workspace }}/.npmrc.ci
+
+    steps:
+      - name: Checkout merged main
+        uses: actions/checkout@v5
+        with:
+          ssh-key: ${{ secrets.CICD_SSH_PRV_KEY }}
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          registry-url: https://npm.pkg.github.com
+
+      - name: Auth GitHub Packages (npm)
+        shell: bash
+        run: |
+          echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com" > "$NPM_CONFIG_USERCONFIG"
+          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" >> "$NPM_CONFIG_USERCONFIG"
+          echo "always-auth=true" >> "$NPM_CONFIG_USERCONFIG"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (optional safety)
+        run: pnpm build
+
+      - name: Changesets publish (creates npm releases + git tags)
+        run: pnpm changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "Changesets publish executed after merging Version Packages."
+          echo "This created git tags like @scope/pkg@version,"
+          echo "which can trigger Docker image workflow(s) for apps under apps/ if configured."

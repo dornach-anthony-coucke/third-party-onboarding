@@ -1,0 +1,31 @@
+{
+  "name": "@third-party-onboarding-manager/database-nest-module",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Reusable NestJS Database module based on drizzle-core",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@third-party-onboarding-manager/drizzle-core": "workspace:*",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/config": "^3.1.1",
+    "drizzle-orm": "^0.44.7",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "@types/node": "^20.10.6",
+    "@types/pg": "^8.16.0",
+    "typescript": "^5.3.3"
+  }
+}

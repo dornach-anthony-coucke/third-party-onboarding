@@ -1,0 +1,77 @@
+name: Build and publish docker image(s) on prod
+
+on:
+  push:
+    # Tags générés par Changesets en mode monorepo indépendant, ex: "@third-party-onboarding-manager/write-api@1.2.3"
+    tags:
+      - '@third-party-onboarding-manager/*@*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push-tagged-app-image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse package/tag info
+        id: tag
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME:-${{ github.ref_name }}}"
+          echo "Tag received: $TAG"
+
+          PKG_NAME="${TAG%@*}"
+          VERSION="${TAG##*@}"
+
+          echo "Package: $PKG_NAME"
+          echo "Version: $VERSION"
+
+          PKG_JSON_PATH=$(grep -R "\"name\": \"$PKG_NAME\"" -n apps || true)
+          if [ -z "$PKG_JSON_PATH" ]; then
+            echo "No app package.json found under apps/ for $PKG_NAME; skipping Docker build."
+            echo "skip_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          APP_PKG_FILE=$(echo "$PKG_JSON_PATH" | head -n1 | cut -d: -f1)
+          APP_DIR=$(dirname "$APP_PKG_FILE")
+          IMAGE_BASENAME=$(echo "$PKG_NAME" | sed 's/^@//; s/\//-/g')
+
+          echo "app_dir=$APP_DIR" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "image_basename=$IMAGE_BASENAME" >> "$GITHUB_OUTPUT"
+          echo "skip_build=false" >> "$GITHUB_OUTPUT"
+
+      - name: Stop early if tag is not for an app
+        if: steps.tag.outputs.skip_build == 'true'
+        run: echo "Tag is not associated with an app under apps/; skipping Docker build." && exit 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image name and version tag
+        run: |
+          echo "IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${{ steps.tag.outputs.image_basename }}" >> $GITHUB_ENV
+          echo "IMAGE_TAG=${{ steps.tag.outputs.version }}" >> $GITHUB_ENV
+          echo "APP_DIR=${{ steps.tag.outputs.app_dir }}" >> $GITHUB_ENV
+
+      - name: Build and push versioned app image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ env.APP_DIR }}/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}

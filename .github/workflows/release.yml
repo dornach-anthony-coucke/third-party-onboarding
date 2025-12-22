@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: changeset-pr-main
+  cancel-in-progress: true
+
+jobs:
+  create-or-update-release-pr:
+    if: ${{ !contains(github.event.head_commit.message, 'Version Packages') }}
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_CONFIG_USERCONFIG: ${{ github.workspace }}/.npmrc.ci
+    steps:
+      - name: Checkout merged main
+        uses: actions/checkout@v5
+        with:
+          ssh-key: ${{ secrets.CICD_SSH_PRV_KEY }}
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify build
+        run: pnpm build
+
+      - name: Changesets - create/update PR
+        uses: changesets/action@v1
+        with:
+          publish: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
