@@ -10,7 +10,7 @@
     "start": "node dist/main.js",
     "start:dev": "pnpm run dev",
     "clean": "rm -rf dist",
-    "lint": "eslint src --ext .ts",
+    "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

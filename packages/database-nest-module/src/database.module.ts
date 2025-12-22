@@ -17,8 +17,6 @@ export interface DatabaseModuleAsyncOptions {
 
 @Module({})
 export class DatabaseModule implements OnModuleDestroy {
-  constructor() {}
-
   async onModuleDestroy() {
     // Cleanup is handled by individual DrizzleCore instances
   }

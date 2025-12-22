@@ -13,7 +13,7 @@ export class DrizzleCore {
 
   constructor(config: DrizzleCoreConfig) {
     this.client = postgres(config.connectionString, {
-      max: config.maxConnections || 10,
+      max: config.maxConnections ?? 10,
       ssl: config.ssl ? 'require' : false,
     });
     this.db = drizzle(this.client);

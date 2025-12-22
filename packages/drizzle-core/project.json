@@ -31,7 +31,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "eslint src --ext .ts",
+        "command": "eslint .",
         "cwd": "{projectRoot}"
       }
     },

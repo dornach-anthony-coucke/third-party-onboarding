@@ -12,7 +12,7 @@ import { AppService } from './app.service';
     }),
     DatabaseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
-        connectionString: configService.get('DATABASE_URL') || 'postgresql://localhost:5432/dev',
+        connectionString: configService.get('DATABASE_URL') ?? 'postgresql://localhost:5432/dev',
         maxConnections: 10,
         ssl: configService.get('DATABASE_SSL') === 'true',
       }),

@@ -125,6 +125,45 @@ This monorepo uses Nx for:
 - **Parallel execution**: Runs tasks in parallel when possible
 - **Dependency graph**: Visualize project dependencies with `pnpm run graph`
 
+## Database Setup
+
+Start the PostgreSQL database using Docker Compose:
+
+```bash
+cd infra
+docker compose up -d
+```
+
+The database will be available at:
+
+```
+postgresql://postgres:postgres@localhost:5432/third-party-onboarding
+```
+
+See [infra/README.md](./infra/README.md) for more details.
+
+## Release Management
+
+This project uses Changesets for version management and releases:
+
+```bash
+# Add a changeset (describe your changes)
+pnpm changeset
+
+# Update package versions based on changesets
+pnpm changeset:version
+
+# Publish packages (for maintainers)
+pnpm changeset:publish
+```
+
+## Code Quality
+
+- **ESLint 9**: Modern flat config with TypeScript ESLint v8
+- **Prettier 3**: Latest formatting standards
+- **Consistent imports**: Type imports enforced
+- **Nullish coalescing**: Safer than `||` operator
+
 ## Future Plans
 
 - React frontend application in the same monorepo
@@ -139,6 +178,8 @@ This monorepo uses Nx for:
 - **Build Tool**: tsup
 - **Testing**: Vitest
 - **Language**: TypeScript
+- **Code Quality**: ESLint 9 + Prettier 3
+- **Release Management**: Changesets
 
 ## License
 

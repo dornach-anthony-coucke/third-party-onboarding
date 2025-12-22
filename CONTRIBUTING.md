@@ -228,18 +228,77 @@ pnpm run dev
 
 The API will be available at `http://localhost:3000/api`
 
+## Database Setup
+
+Start the PostgreSQL database:
+
+```bash
+cd infra
+docker compose up -d
+```
+
+Stop the database:
+
+```bash
+cd infra
+docker compose down
+```
+
 ## Code Style
 
-- Use TypeScript for all code
-- Follow the ESLint configuration
-- Format code with Prettier before committing
-- Write tests for new features
+This project uses modern ESLint and Prettier configurations:
+
+- **ESLint 9** with flat config
+- **TypeScript ESLint v8** for strict type checking
+- **Prettier 3** with latest formatting standards
+- Type imports enforced with inline syntax
+- Nullish coalescing (`??`) preferred over `||`
+
+Run linting and formatting:
+
+```bash
+pnpm run lint
+pnpm run format
+```
+
+## Release Management
+
+This project uses Changesets for versioning:
+
+### Adding Changes
+
+When you make changes, add a changeset:
+
+```bash
+pnpm changeset
+```
+
+This will prompt you to:
+
+1. Select which packages changed
+2. Choose the type of change (major, minor, patch)
+3. Write a summary of changes
+
+### Releasing (Maintainers)
+
+Update versions:
+
+```bash
+pnpm changeset:version
+```
+
+Publish:
+
+```bash
+pnpm changeset:publish
+```
 
 ## Commit Guidelines
 
 - Write clear, descriptive commit messages
 - Keep commits focused and atomic
 - Reference issues in commit messages when applicable
+- Add changesets for all user-facing changes
 
 ## Future Additions
 
