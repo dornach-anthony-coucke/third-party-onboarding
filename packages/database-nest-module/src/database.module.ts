@@ -1,7 +1,8 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Module, Provider, OnModuleDestroy } from '@nestjs/common';
 import { DrizzleCore, DrizzleCoreConfig } from '@third-party-onboarding/drizzle-core';
 
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
+export const DRIZZLE_CORE_INSTANCE = 'DRIZZLE_CORE_INSTANCE';
 
 export interface DatabaseModuleOptions {
   connectionString: string;
@@ -15,32 +16,45 @@ export interface DatabaseModuleAsyncOptions {
 }
 
 @Module({})
-export class DatabaseModule {
+export class DatabaseModule implements OnModuleDestroy {
+  constructor() {}
+
+  async onModuleDestroy() {
+    // Cleanup is handled by individual DrizzleCore instances
+  }
+
   static forRoot(options: DatabaseModuleOptions): DynamicModule {
-    const drizzleProvider: Provider = {
-      provide: DATABASE_CONNECTION,
+    const drizzleCoreProvider: Provider = {
+      provide: DRIZZLE_CORE_INSTANCE,
       useFactory: () => {
         const config: DrizzleCoreConfig = {
           connectionString: options.connectionString,
           maxConnections: options.maxConnections,
           ssl: options.ssl,
         };
-        const drizzleCore = new DrizzleCore(config);
+        return new DrizzleCore(config);
+      },
+    };
+
+    const drizzleProvider: Provider = {
+      provide: DATABASE_CONNECTION,
+      useFactory: (drizzleCore: DrizzleCore) => {
         return drizzleCore.getDb();
       },
+      inject: [DRIZZLE_CORE_INSTANCE],
     };
 
     return {
       module: DatabaseModule,
-      providers: [drizzleProvider],
+      providers: [drizzleCoreProvider, drizzleProvider],
       exports: [drizzleProvider],
       global: true,
     };
   }
 
   static forRootAsync(options: DatabaseModuleAsyncOptions): DynamicModule {
-    const drizzleProvider: Provider = {
-      provide: DATABASE_CONNECTION,
+    const drizzleCoreProvider: Provider = {
+      provide: DRIZZLE_CORE_INSTANCE,
       useFactory: async (...args: any[]) => {
         const moduleOptions = await options.useFactory(...args);
         const config: DrizzleCoreConfig = {
@@ -48,15 +62,22 @@ export class DatabaseModule {
           maxConnections: moduleOptions.maxConnections,
           ssl: moduleOptions.ssl,
         };
-        const drizzleCore = new DrizzleCore(config);
-        return drizzleCore.getDb();
+        return new DrizzleCore(config);
       },
       inject: options.inject || [],
     };
 
+    const drizzleProvider: Provider = {
+      provide: DATABASE_CONNECTION,
+      useFactory: (drizzleCore: DrizzleCore) => {
+        return drizzleCore.getDb();
+      },
+      inject: [DRIZZLE_CORE_INSTANCE],
+    };
+
     return {
       module: DatabaseModule,
-      providers: [drizzleProvider],
+      providers: [drizzleCoreProvider, drizzleProvider],
       exports: [drizzleProvider],
       global: true,
     };
