@@ -1,0 +1,37 @@
+{
+  "name": "@third-party-onboarding/api",
+  "version": "0.0.1",
+  "private": true,
+  "description": "NestJS API application",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch --onSuccess \"node dist/main.js\"",
+    "start": "node dist/main.js",
+    "start:dev": "pnpm run dev",
+    "clean": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@third-party-onboarding/database-nest-module": "workspace:*",
+    "@third-party-onboarding/drizzle-core": "workspace:*",
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/core": "^10.3.0",
+    "@nestjs/platform-express": "^10.3.0",
+    "@nestjs/config": "^3.1.1",
+    "drizzle-orm": "^0.29.2",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.1",
+    "@vitest/coverage-v8": "^1.1.1"
+  }
+}
