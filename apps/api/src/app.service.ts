@@ -3,9 +3,7 @@ import { DATABASE_CONNECTION } from '@third-party-onboarding/database-nest-modul
 
 @Injectable()
 export class AppService {
-  constructor(
-    @Inject(DATABASE_CONNECTION) private readonly db: any,
-  ) {}
+  constructor(@Inject(DATABASE_CONNECTION) private readonly db: any) {}
 
   getHealth() {
     return {
