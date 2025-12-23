@@ -1,0 +1,43 @@
+{
+  "name": "third-party-onboarding-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Third-party onboarding monorepo with NestJS API and reusable packages",
+  "scripts": {
+    "build": "nx run-many -t build",
+    "build:affected": "nx affected -t build",
+    "test": "nx run-many -t test",
+    "test:affected": "nx affected -t test",
+    "lint": "nx run-many -t lint",
+    "lint:affected": "nx affected -t lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "graph": "nx graph",
+    "nx": "nx",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "changeset publish",
+    "write-api:dev": "nx run write-api:dev",
+    "write-api:build": "nx run write-api:build",
+    "write-api:start": "nx run write-api:start",
+    "write-api:test": "nx run write-api:test"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@eslint/js": "^9.39.2",
+    "@nx/js": "^22.3.3",
+    "@types/node": "^20.19.27",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^9.1.2",
+    "eslint-plugin-prettier": "^5.5.4",
+    "nx": "^22.3.3",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.1"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.1"
+}
