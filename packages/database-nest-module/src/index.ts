@@ -1,2 +1,3 @@
-export { DatabaseModule, DATABASE_CONNECTION } from './database.module';
-export type { DatabaseModuleOptions, DatabaseModuleAsyncOptions } from './database.module';
+export { DATABASE_TOKEN } from './tokens/db.token.js';
+export { POOL_TOKEN } from './tokens/pool.token.js';
+export * from './database.module.js';

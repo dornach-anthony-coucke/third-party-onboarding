@@ -1,83 +1,37 @@
-import { DynamicModule, Module, Provider, OnModuleDestroy } from '@nestjs/common';
-import { DrizzleCore, DrizzleCoreConfig } from '@third-party-onboarding/drizzle-core';
+import { Module, Global } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { schemas } from '@third-party-onboarding/drizzle-core';
+import { DATABASE_TOKEN } from './tokens/db.token.js';
+import { POOL_TOKEN } from './tokens/pool.token.js';
 
-export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
-export const DRIZZLE_CORE_INSTANCE = 'DRIZZLE_CORE_INSTANCE';
-
-export interface DatabaseModuleOptions {
-  connectionString: string;
-  maxConnections?: number;
-  ssl?: boolean;
-}
-
-export interface DatabaseModuleAsyncOptions {
-  useFactory: (...args: any[]) => Promise<DatabaseModuleOptions> | DatabaseModuleOptions;
-  inject?: any[];
-}
-
-@Module({})
-export class DatabaseModule implements OnModuleDestroy {
-  async onModuleDestroy() {
-    // Cleanup is handled by individual DrizzleCore instances
-  }
-
-  static forRoot(options: DatabaseModuleOptions): DynamicModule {
-    const drizzleCoreProvider: Provider = {
-      provide: DRIZZLE_CORE_INSTANCE,
-      useFactory: () => {
-        const config: DrizzleCoreConfig = {
-          connectionString: options.connectionString,
-          maxConnections: options.maxConnections,
-          ssl: options.ssl,
-        };
-        return new DrizzleCore(config);
-      },
-    };
-
-    const drizzleProvider: Provider = {
-      provide: DATABASE_CONNECTION,
-      useFactory: (drizzleCore: DrizzleCore) => {
-        return drizzleCore.getDb();
-      },
-      inject: [DRIZZLE_CORE_INSTANCE],
-    };
-
-    return {
-      module: DatabaseModule,
-      providers: [drizzleCoreProvider, drizzleProvider],
-      exports: [drizzleProvider],
-      global: true,
-    };
-  }
-
-  static forRootAsync(options: DatabaseModuleAsyncOptions): DynamicModule {
-    const drizzleCoreProvider: Provider = {
-      provide: DRIZZLE_CORE_INSTANCE,
-      useFactory: async (...args: any[]) => {
-        const moduleOptions = await options.useFactory(...args);
-        const config: DrizzleCoreConfig = {
-          connectionString: moduleOptions.connectionString,
-          maxConnections: moduleOptions.maxConnections,
-          ssl: moduleOptions.ssl,
-        };
-        return new DrizzleCore(config);
-      },
-      inject: options.inject || [],
-    };
-
-    const drizzleProvider: Provider = {
-      provide: DATABASE_CONNECTION,
-      useFactory: (drizzleCore: DrizzleCore) => {
-        return drizzleCore.getDb();
-      },
-      inject: [DRIZZLE_CORE_INSTANCE],
-    };
-
-    return {
-      module: DatabaseModule,
-      providers: [drizzleCoreProvider, drizzleProvider],
-      exports: [drizzleProvider],
-      global: true,
-    };
-  }
-}
+@Global()
+@Module({
+  imports: [ConfigModule],
+  providers: [
+    {
+      provide: POOL_TOKEN,
+      useFactory: (config: ConfigService) =>
+        new Pool({
+          host: config.get<string>('ONBOARDING_DATABASE_HOST'),
+          port: config.get<number>('ONBOARDING_DATABASE_PORT'),
+          database: config.get<string>('ONBOARDING_DATABASE_NAME'),
+          user: config.get<string>('ONBOARDING_DATABASE_USER'),
+          password: config.get<string>('ONBOARDING_DATABASE_PASSWORD'),
+        }),
+      inject: [ConfigService],
+    },
+    {
+      provide: DATABASE_TOKEN,
+      useFactory: (pool: Pool) =>
+        drizzle(pool, {
+          schema: schemas,
+          logger: process.env.NODE_ENV === 'development' ? true : false,
+        }),
+      inject: [POOL_TOKEN],
+    },
+  ],
+  exports: [DATABASE_TOKEN],
+})
+export class DatabaseModule {}

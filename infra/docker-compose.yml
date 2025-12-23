@@ -7,8 +7,8 @@ services:
       - '5432:5432'
     environment:
       POSTGRES_DB: third-party-onboarding
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: third-party-onboarding
+      POSTGRES_PASSWORD: third-party-onboarding
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
