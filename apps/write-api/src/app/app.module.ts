@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from '@third-party-onboarding-manager/database-nest-module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -9,5 +10,6 @@ import { DatabaseModule } from '@third-party-onboarding-manager/database-nest-mo
     }),
     DatabaseModule,
   ],
+  controllers: [HealthController],
 })
 export class AppModule {}
