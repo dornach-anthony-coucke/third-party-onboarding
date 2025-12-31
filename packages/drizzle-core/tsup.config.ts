@@ -8,5 +8,4 @@ export default defineConfig({
   clean: true,
   splitting: false,
   treeshake: true,
-  external: ['drizzle-orm', 'postgres'],
 });

@@ -17,6 +17,7 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@third-party-onboarding-manager/event-mapper-registry-nest-module": "workspace:*",
     "@third-party-onboarding-manager/database-nest-module": "workspace:*",
     "@third-party-onboarding-manager/drizzle-core": "workspace:*",
     "@nestjs/common": "^10.3.0",
