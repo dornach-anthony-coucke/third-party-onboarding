@@ -1,0 +1,1 @@
+export const PROCESS_MANAGER_TOKEN = Symbol('PROCESS_MANAGER_TOKEN');

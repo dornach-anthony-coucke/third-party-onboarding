@@ -7,7 +7,7 @@
   "implicitDependencies": [
     "drizzle-core",
     "database-nest-module",
-    "event-mapper-registry-nest-module"
+    "mapper-registry-nest-module"
   ],
   "targets": {
     "build": {
@@ -20,7 +20,7 @@
       "dependsOn": [
         "database-nest-module:build",
         "drizzle-core:build",
-        "event-mapper-registry-nest-module:build"
+        "mapper-registry-nest-module:build"
       ]
     },
     "dev": {

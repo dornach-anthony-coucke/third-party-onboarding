@@ -4,7 +4,7 @@ services:
     container_name: third-party-onboarding-manager-database
     restart: unless-stopped
     ports:
-      - "${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT:-5432}:5432"
+      - "${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT}:5432"
     environment:
       POSTGRES_DB: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
       POSTGRES_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
@@ -17,6 +17,29 @@ services:
       timeout: 5s
       retries: 5
 
+  third-party-onboarding-manager-message-bus:
+    image: localstack/localstack:latest
+    container_name: third-party-onboarding-manager-message-bus
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sqs,sns
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID}
+
+      - ONBOARDING_MANAGER_INTERNAL_EVENTS_TOPIC=${ONBOARDING_MANAGER_INTERNAL_EVENTS_TOPIC}
+      - ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE=${ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE}
+      - ONBOARDING_MANAGER_ORCHESTRATOR_INTERNAL_EVENTS_QUEUE=${ONBOARDING_MANAGER_ORCHESTRATOR_INTERNAL_EVENTS_QUEUE}
+      - ONBOARDING_MANAGER_ORCHESTRATOR_COMPANY_REGISTRY_PUBLIC_EVENTS_QUEUE=${ONBOARDING_MANAGER_ORCHESTRATOR_COMPANY_REGISTRY_PUBLIC_EVENTS_QUEUE}
+      - ONBOARDING_MANAGER_ORCHESTRATOR_ACCOUNT_REGISTRY_PUBLIC_EVENTS_QUEUE=${ONBOARDING_MANAGER_ORCHESTRATOR_ACCOUNT_REGISTRY_PUBLIC_EVENTS_QUEUE}
+      - COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE=${COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE}
+      - ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE=${ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE}
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./scripts/localstack/init:/etc/localstack/init/ready.d"
+
   third-party-onboarding-manager-write-api:
     image: third-party-onboarding-manager-write-api
     build:
@@ -24,19 +47,166 @@ services:
       dockerfile: apps/write-api/Dockerfile
     container_name: third-party-onboarding-manager-write-api
     restart: unless-stopped
+    depends_on:
+      third-party-onboarding-manager-message-bus:
+        condition: service_started
+      third-party-onboarding-manager-database:
+        condition: service_healthy
     ports:
-      - "${WRITE_API_PORT:-3000}:3000"
+      - "${WRITE_API_PORT}:3000"
     environment:
-      WRITE_API_PORT: ${WRITE_API_PORT:-3000}
+      WRITE_API_PORT: ${WRITE_API_PORT}
       THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST: third-party-onboarding-manager-database
-      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT:-5432}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: 5432
       THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
       THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
       THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+      PGSSLMODE: disable
     command: ["pnpm", "run", "write-api:dev"]
     volumes:
       - ../apps/write-api:/usr/src/app/apps/write-api
 
+  third-party-onboarding-manager-event-publisher:
+    image: third-party-onboarding-manager-event-publisher
+    build:
+      context: ..
+      dockerfile: apps/event-publisher/Dockerfile
+    container_name: third-party-onboarding-manager-event-publisher
+    restart: unless-stopped
+    depends_on:
+      third-party-onboarding-manager-message-bus:
+        condition: service_started
+      third-party-onboarding-manager-database:
+        condition: service_healthy
+    environment:
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST: third-party-onboarding-manager-database
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: 5432
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+
+      # AWS / LocalStack (SDK)
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_URL: ${AWS_URL}
+      AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+
+      # Internal events topic to publish
+      ONBOARDING_MANAGER_INTERNAL_EVENTS_TOPIC: ${ONBOARDING_MANAGER_INTERNAL_EVENTS_TOPIC}
+
+      PGSSLMODE: disable
+    command: ["pnpm", "nx", "run", "event-publisher:dev"]
+    volumes:
+      - ../apps/event-publisher:/usr/src/app/apps/event-publisher
+
+  third-party-onboarding-manager-command-publisher:
+    image: third-party-onboarding-manager-command-publisher
+    build:
+      context: ..
+      dockerfile: apps/command-publisher/Dockerfile
+    container_name: third-party-onboarding-manager-command-publisher
+    restart: unless-stopped
+    depends_on:
+      third-party-onboarding-manager-message-bus:
+        condition: service_started
+      third-party-onboarding-manager-database:
+        condition: service_healthy
+    environment:
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST: third-party-onboarding-manager-database
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: 5432
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+
+      # Target queues for commands (SQS only)
+      ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE: ${ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE}
+      COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE: ${COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE}
+      ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE: ${ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE}
+
+      # AWS / LocalStack (SDK)
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_URL: ${AWS_URL}
+      AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+
+      PGSSLMODE: disable
+    command: ["pnpm", "nx", "run", "command-publisher:dev"]
+    volumes:
+      - ../apps/command-publisher:/usr/src/app/apps/command-publisher
+
+  third-party-onboarding-manager-command-executor:
+    image: third-party-onboarding-manager-command-executor
+    build:
+      context: ..
+      dockerfile: apps/command-executor/Dockerfile
+    container_name: third-party-onboarding-manager-command-executor
+    restart: unless-stopped
+    depends_on:
+      third-party-onboarding-manager-message-bus:
+        condition: service_started
+      third-party-onboarding-manager-database:
+        condition: service_healthy
+    environment:
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST: third-party-onboarding-manager-database
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: 5432
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+
+      # Internal commands inbox (SQS)
+      ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE: ${ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE}
+
+      # AWS / LocalStack (SDK) if this service reads from SQS using AWS SDK
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_URL: ${AWS_URL}
+      AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+
+      PGSSLMODE: disable
+    command: ["pnpm", "nx", "run", "command-executor:dev"]
+    volumes:
+      - ../apps/command-executor:/usr/src/app/apps/command-executor
+
+  third-party-onboarding-manager-orchestrator:
+    image: third-party-onboarding-manager-orchestrator
+    build:
+      context: ..
+      dockerfile: apps/orchestrator/Dockerfile
+    container_name: third-party-onboarding-manager-orchestrator
+    restart: unless-stopped
+    depends_on:
+      third-party-onboarding-manager-message-bus:
+        condition: service_started
+      third-party-onboarding-manager-database:
+        condition: service_healthy
+    environment:
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST: third-party-onboarding-manager-database
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT: 5432
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER}
+      THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD: ${THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD}
+
+      # Queues consumed by orchestrator
+      ONBOARDING_MANAGER_ORCHESTRATOR_INTERNAL_EVENTS_QUEUE: ${ONBOARDING_MANAGER_ORCHESTRATOR_INTERNAL_EVENTS_QUEUE}
+      ONBOARDING_MANAGER_ORCHESTRATOR_COMPANY_REGISTRY_PUBLIC_EVENTS_QUEUE: ${ONBOARDING_MANAGER_ORCHESTRATOR_COMPANY_REGISTRY_PUBLIC_EVENTS_QUEUE}
+      ONBOARDING_MANAGER_ORCHESTRATOR_ACCOUNT_REGISTRY_PUBLIC_EVENTS_QUEUE: ${ONBOARDING_MANAGER_ORCHESTRATOR_ACCOUNT_REGISTRY_PUBLIC_EVENTS_QUEUE}
+
+      # AWS / LocalStack (SDK)
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_URL: ${AWS_URL}
+      AWS_ACCOUNT_ID: ${AWS_ACCOUNT_ID}
+
+      PGSSLMODE: disable
+    command: ["pnpm", "nx", "run", "orchestrator:dev"]
+    volumes:
+      - ../apps/orchestrator:/usr/src/app/apps/orchestrator
+
 volumes:
+  third_party_onboarding_manager_message-bus_data:
   third_party_onboarding_manager_database_data:
     driver: local

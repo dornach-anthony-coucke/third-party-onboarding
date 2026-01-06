@@ -107,6 +107,7 @@ jobs:
               --tag "$IMAGE_NAME:$VERSION" \
               --tag "$IMAGE_NAME:dev-pr-${{ github.event.pull_request.number }}" \
               --tag "$IMAGE_NAME:dev-${{ github.sha }}" \
+              --build-arg NPM_TOKEN=${{ secrets.NPM_TOKEN_PRIVATE_REGISTRY }} \
               --push \
               .
           done

@@ -1,0 +1,25 @@
+{
+  "name": "@third-party-onboarding-manager/messaging-aws",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Innersourceable aws messaging library",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sns": "^3.972.0",
+    "@aws-sdk/client-sqs": "^3.972.0",
+    "@third-party-onboarding-manager/messaging-core": "workspace:*"
+  }
+}

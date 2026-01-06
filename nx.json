@@ -26,13 +26,5 @@
     ],
     "sharedGlobals": []
   },
-  "plugins": [
-    {
-      "plugin": "@nx/js",
-      "options": {
-        "analyzeSourceFiles": true
-      }
-    }
-  ],
   "defaultBase": "main"
 }

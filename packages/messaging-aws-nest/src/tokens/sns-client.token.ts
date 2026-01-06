@@ -1,0 +1,1 @@
+export const AWS_SNS_CLIENT_PROVIDER = Symbol('AWS_SNS_CLIENT_PROVIDER');

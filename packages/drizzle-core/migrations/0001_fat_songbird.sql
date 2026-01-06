@@ -1,0 +1,1 @@
+ALTER TABLE "command_outbox" ADD COLUMN "routing_key" text NOT NULL;

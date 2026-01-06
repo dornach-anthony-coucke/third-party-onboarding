@@ -12,14 +12,16 @@ import { POOL_TOKEN } from './tokens/pool.token.js';
   providers: [
     {
       provide: POOL_TOKEN,
-      useFactory: (config: ConfigService) =>
-        new Pool({
+      useFactory: (config: ConfigService) => {
+        return new Pool({
           host: config.get<string>('THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_HOST'),
           port: config.get<number>('THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PORT'),
           database: config.get<string>('THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_NAME'),
           user: config.get<string>('THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_USER'),
           password: config.get<string>('THIRD_PARTY_ONBOARDING_MANAGER_DATABASE_PASSWORD'),
-        }),
+          // Rely on PGSSLMODE env for SSL; omit ssl to avoid forcing TLS
+        });
+      },
       inject: [ConfigService],
     },
     {

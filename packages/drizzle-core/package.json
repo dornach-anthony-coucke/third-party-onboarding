@@ -10,10 +10,13 @@
     "dev": "tsup --watch",
     "clean": "rm -rf dist",
     "lint": "eslint .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "generate-migrations": "drizzle-kit generate",
+    "run-migrations": "drizzle-kit migrate"
   },
   "dependencies": {
-    "drizzle-orm": "^0.44.7"
+    "drizzle-orm": "^0.44.7",
+    "drizzle-kit": "^0.31.8"
   },
   "devDependencies": {
     "tsup": "^8.0.1",

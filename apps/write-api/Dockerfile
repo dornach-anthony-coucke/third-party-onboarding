@@ -7,12 +7,12 @@ WORKDIR /usr/src/app
 RUN npm install -g pnpm@8.15.1
 
 # Copy workspace manifests
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json tsconfig.json ./
+COPY .npmrc package.json pnpm-lock.yaml pnpm-workspace.yaml nx.json tsconfig.json ./
 COPY apps ./apps
 COPY packages ./packages
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile && rm -f .npmrc
 
 # Build the write-api app (and its deps via Nx)
 RUN pnpm run write-api:build

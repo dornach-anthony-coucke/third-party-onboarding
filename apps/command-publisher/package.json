@@ -1,0 +1,40 @@
+{
+  "name": "@third-party-onboarding-manager/command-publisher",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Onboarding manager command publisher (command outbox listener)",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch --onSuccess \"node dist/main.js\"",
+    "start": "node dist/main.js",
+    "start:dev": "pnpm run dev",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.11",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.11",
+    "@nestjs/platform-express": "^11.1.11",
+    "@third-party-onboarding-manager/database-nest-module": "workspace:*",
+    "@third-party-onboarding-manager/drizzle-core": "workspace:*",
+    "@third-party-onboarding-manager/messaging-aws-nest": "workspace:*",
+    "@third-party-onboarding-manager/messaging-core": "workspace:*",
+    "drizzle-orm": "^0.44.7",
+    "reflect-metadata": "^0.2.1",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11",
+    "@types/node": "^20.10.6",
+    "@vitest/coverage-v8": "^1.1.1",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.1"
+  }
+}

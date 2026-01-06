@@ -1,0 +1,1 @@
+export const AWS_TRANSPORT_CONFIG = Symbol('AWS_TRANSPORT_CONFIG');

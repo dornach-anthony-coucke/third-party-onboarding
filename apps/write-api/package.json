@@ -17,22 +17,30 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@third-party-onboarding-manager/event-mapper-registry-nest-module": "workspace:*",
+    "@dornach/third-party-onboarding-manager-application": "0.0.0-dev-20260120153302",
+    "@dornach/third-party-onboarding-manager-domain": "0.0.0-dev-20260120153302",
+    "@nestjs/class-transformer": "^0.4.0",
+    "@nestjs/common": "^11.1.11",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.11",
+    "@nestjs/cqrs": "^11.0.3",
+    "@nestjs/platform-express": "^11.1.11",
+    "@nestjs/swagger": "^11.2.3",
     "@third-party-onboarding-manager/database-nest-module": "workspace:*",
     "@third-party-onboarding-manager/drizzle-core": "workspace:*",
-    "@nestjs/common": "^10.3.0",
-    "@nestjs/core": "^10.3.0",
-    "@nestjs/platform-express": "^10.3.0",
-    "@nestjs/config": "^3.1.1",
+    "@third-party-onboarding-manager/mapper-registry-nest-module": "workspace:*",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "drizzle-orm": "^0.44.7",
     "reflect-metadata": "^0.2.1",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
-    "tsup": "^8.0.1",
+    "@nestjs/testing": "^11",
     "@types/node": "^20.10.6",
+    "@vitest/coverage-v8": "^1.1.1",
+    "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^1.1.1",
-    "@vitest/coverage-v8": "^1.1.1"
+    "vitest": "^1.1.1"
   }
 }

@@ -1,0 +1,1 @@
+export const AWS_SQS_CLIENT_PROVIDER = Symbol('AWS_SQS_CLIENT_PROVIDER');

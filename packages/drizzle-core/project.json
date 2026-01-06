@@ -42,6 +42,22 @@
         "command": "tsc --noEmit",
         "cwd": "{projectRoot}"
       }
+    },
+    "generate-migrations": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "pnpm run generate-migrations",
+        "cwd": "{projectRoot}"
+      }
+    },
+    "run-migrations": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "pnpm run run-migrations",
+        "cwd": "{projectRoot}"
+      }
     }
   }
 }

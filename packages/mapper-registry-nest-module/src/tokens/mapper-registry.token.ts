@@ -1,0 +1,1 @@
+export const MAPPER_REGISTRY_TOKEN = Symbol('MAPPER_REGISTRY_TOKEN');
