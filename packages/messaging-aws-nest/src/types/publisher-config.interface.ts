@@ -22,25 +22,28 @@ export interface PublisherConfig {
 
   /**
    * The destination where messages will be published.
-   * This should be the actual destination value (queue name, topic name, etc.).
    * 
-   * When using registerPublishersAsync, retrieve this from ConfigService:
+   * Use the provided token constants for queue/topic names, which are injected
+   * as providers that retrieve configuration from ConfigService:
    * 
    * AWS SQS/SNS:
-   * - Queue or topic name from environment variable
-   * - Example: configService.getOrThrow('COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE')
+   * - Use token constants like ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE_NAME
+   * - Example: destination: COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE_NAME
    * 
    * RabbitMQ:
-   * - Exchange name from environment variable
-   * - Example: configService.getOrThrow('COMPANY_REGISTRY_EXCHANGE')
+   * - Use token constants for exchange names (when implemented)
+   * - Example: destination: COMPANY_REGISTRY_EXCHANGE_NAME
    * 
    * Kafka:
-   * - Topic name from environment variable
-   * - Example: configService.getOrThrow('COMPANY_REGISTRY_TOPIC')
+   * - Use token constants for topic names (when implemented)
+   * - Example: destination: COMPANY_REGISTRY_TOPIC_NAME
    * 
    * NATS:
-   * - Subject from environment variable
-   * - Example: configService.getOrThrow('COMPANY_REGISTRY_SUBJECT')
+   * - Use token constants for subject names (when implemented)
+   * - Example: destination: COMPANY_REGISTRY_SUBJECT_NAME
+   * 
+   * For backward compatibility, you can also pass a string directly,
+   * which will be used as-is without ConfigService lookup.
    */
   destination: string;
 

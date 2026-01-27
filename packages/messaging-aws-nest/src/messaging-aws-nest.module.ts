@@ -1,19 +1,37 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AwsTransportConfigProvider } from './providers/aws-transport-config.provider.js';
 import { AwsSqsClientProvider } from './providers/aws-sqs-client.provider.js';
 import { AwsSnsClientProvider } from './providers/aws-sns-client.provider.js';
 import { PublisherRegistryInitializer } from './services/publisher-registry-initializer.service.js';
 import { PUBLISHER_CONFIGS } from './tokens/publisher-configs.token.js';
 import type { PublisherConfig } from './types/publisher-config.interface.js';
+import {
+  onboardingManagerInternalCommandsQueueNameProvider,
+  companyRegistryPublicCommandsQueueNameProvider,
+  accountRegistryPublicCommandsQueueNameProvider,
+} from './providers/queue-names.provider.js';
 
 @Module({})
 export class MessagingAwsNestModule {
   static forRoot(): DynamicModule {
     return {
       module: MessagingAwsNestModule,
-      providers: [AwsTransportConfigProvider, AwsSqsClientProvider, AwsSnsClientProvider],
-      exports: [AwsTransportConfigProvider, AwsSqsClientProvider, AwsSnsClientProvider],
+      providers: [
+        AwsTransportConfigProvider,
+        AwsSqsClientProvider,
+        AwsSnsClientProvider,
+        onboardingManagerInternalCommandsQueueNameProvider,
+        companyRegistryPublicCommandsQueueNameProvider,
+        accountRegistryPublicCommandsQueueNameProvider,
+      ],
+      exports: [
+        AwsTransportConfigProvider,
+        AwsSqsClientProvider,
+        AwsSnsClientProvider,
+        onboardingManagerInternalCommandsQueueNameProvider,
+        companyRegistryPublicCommandsQueueNameProvider,
+        accountRegistryPublicCommandsQueueNameProvider,
+      ],
       global: true,
     };
   }
@@ -25,59 +43,6 @@ export class MessagingAwsNestModule {
         {
           provide: PUBLISHER_CONFIGS,
           useValue: publisherConfigurations,
-        },
-        PublisherRegistryInitializer,
-      ],
-    };
-  }
-
-  /**
-   * Register publishers asynchronously with dependency injection support.
-   * 
-   * This method allows you to inject dependencies (like ConfigService) into the
-   * factory function to dynamically configure publishers at runtime.
-   * 
-   * @param options Configuration options for async publisher registration
-   * @param options.useFactory Factory function that receives injected dependencies and returns publisher configurations
-   * @param options.inject Optional array of dependencies to inject into the factory. Defaults to [ConfigService]
-   * @returns Dynamic module configuration
-   * 
-   * @example
-   * // Using ConfigService (default)
-   * MessagingAwsNestModule.registerPublishersAsync({
-   *   useFactory: (configService: ConfigService) => [
-   *     {
-   *       key: 'company-registry',
-   *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
-   *       metadata: { transportType: 'sqs' }
-   *     }
-   *   ]
-   * })
-   * 
-   * @example
-   * // With explicit injection
-   * MessagingAwsNestModule.registerPublishersAsync({
-   *   useFactory: (configService: ConfigService, customService: CustomService) => [
-   *     {
-   *       key: 'company-registry',
-   *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
-   *       metadata: { transportType: 'sqs' }
-   *     }
-   *   ],
-   *   inject: [ConfigService, CustomService]
-   * })
-   */
-  static registerPublishersAsync(options: {
-    useFactory: (...args: unknown[]) => PublisherConfig[] | Promise<PublisherConfig[]>;
-    inject?: unknown[];
-  }): DynamicModule {
-    return {
-      module: MessagingAwsNestModule,
-      providers: [
-        {
-          provide: PUBLISHER_CONFIGS,
-          useFactory: options.useFactory,
-          inject: options.inject ?? [ConfigService],
         },
         PublisherRegistryInitializer,
       ],
