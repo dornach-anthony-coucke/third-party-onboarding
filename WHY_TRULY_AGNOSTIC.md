@@ -53,23 +53,25 @@ messaging-aws-nest
 ```
 messaging-aws-nest (AWS-specific, assume sa responsabilité)
 ├── forRoot() - Infrastructure AWS
-├── forFeature() - Registration publishers AWS
+├── registerPublishers() - Registration publishers AWS
 ├── PublisherConfig - Configuration agnostique
-└── createPublisherProvider() - Logique AWS
+└── PublisherRegistryInitializer (OnModuleInit) - Logique AWS
     ├── Importe AWS clients (OK, c'est un module AWS!)
     ├── Crée SqsPublisher (OK!)
-    └── Crée SnsPublisher (OK!)
+    ├── Crée SnsPublisher (OK!)
+    └── Pas de tokens dynamiques (propre!)
 
 messaging-rabbitmq-nest (futur, RabbitMQ-specific)
 ├── forRoot() - Infrastructure RabbitMQ
-├── forFeature() - Registration publishers RabbitMQ
+├── registerPublishers() - Registration publishers RabbitMQ
 ├── PublisherConfig - Même interface agnostique!
-└── createPublisherProvider() - Logique RabbitMQ
+└── PublisherRegistryInitializer (OnModuleInit) - Logique RabbitMQ
     ├── Importe RabbitMQ clients
-    └── Crée RabbitMQPublisher
+    ├── Crée RabbitMQPublisher
+    └── Pas de tokens dynamiques (propre!)
 ```
 
-**Avantage** : Chaque transport est autonome et gère sa propre logique!
+**Avantage** : Chaque transport est autonome et gère sa propre logique de manière propre!
 
 ## Comparaison Avant/Après
 
@@ -167,46 +169,61 @@ Chaque transport est autonome et suit la même convention
 ### AWS (Actuel)
 
 ```typescript
-// packages/messaging-aws-nest/src/providers/create-publisher.provider.ts
-export function createPublisherProvider(config: PublisherConfig): Provider {
-  return {
-    useFactory: (sqsClient, snsClient, config, registry) => {
+// packages/messaging-aws-nest/src/services/publisher-registry-initializer.service.ts
+@Injectable()
+export class PublisherRegistryInitializer implements OnModuleInit {
+  constructor(
+    @Inject(AWS_SQS_CLIENT_PROVIDER) private sqsClient: SQSClient,
+    @Inject(AWS_SNS_CLIENT_PROVIDER) private snsClient: SNSClient,
+    @Inject(PUBLISHER_REGISTRY) private publisherRegistry: PublisherRegistry,
+    @Inject('PUBLISHER_CONFIGS') private publisherConfigs: PublisherConfig[],
+  ) {}
+
+  onModuleInit(): void {
+    for (const config of this.publisherConfigs) {
       if (config.metadata?.transportType === 'sqs') {
-        registry.register(config.key, new SqsPublisher(sqsClient, ...));
+        this.publisherRegistry.register(config.key, new SqsPublisher(this.sqsClient, ...));
       } else {
-        registry.register(config.key, new SnsPublisher(snsClient, ...));
+        this.publisherRegistry.register(config.key, new SnsPublisher(this.snsClient, ...));
       }
-    },
-    inject: [AWS_SQS_CLIENT_PROVIDER, AWS_SNS_CLIENT_PROVIDER, ...],
-  };
+    }
+  }
 }
 ```
 
 ### RabbitMQ (Futur)
 
 ```typescript
-// packages/messaging-rabbitmq-nest/src/providers/create-publisher.provider.ts
-export function createPublisherProvider(config: PublisherConfig): Provider {
-  return {
-    useFactory: (channel, config, registry) => {
-      const exchange = configService.getOrThrow(config.destination);
+// packages/messaging-rabbitmq-nest/src/services/publisher-registry-initializer.service.ts
+@Injectable()
+export class PublisherRegistryInitializer implements OnModuleInit {
+  constructor(
+    @Inject(RABBITMQ_CHANNEL_PROVIDER) private channel: Channel,
+    @Inject(PUBLISHER_REGISTRY) private publisherRegistry: PublisherRegistry,
+    @Inject('PUBLISHER_CONFIGS') private publisherConfigs: PublisherConfig[],
+    private configService: ConfigService,
+  ) {}
+
+  onModuleInit(): void {
+    for (const config of this.publisherConfigs) {
+      const exchange = this.configService.getOrThrow(config.destination);
       const routingKey = config.metadata?.routingKey;
       
-      registry.register(
+      this.publisherRegistry.register(
         config.key,
-        new RabbitMQPublisher(channel, exchange, routingKey)
+        new RabbitMQPublisher(this.channel, exchange, routingKey)
       );
-    },
-    inject: [RABBITMQ_CHANNEL_PROVIDER, ConfigService, PUBLISHER_REGISTRY],
-  };
+    }
+  }
 }
 ```
 
 **Observations** :
-- ✅ Même signature `createPublisherProvider(config: PublisherConfig)`
-- ✅ Même pattern de factory
+- ✅ Même classe `PublisherRegistryInitializer` avec `OnModuleInit`
+- ✅ Même pattern d'initialisation au démarrage du module
 - ✅ Logique complètement différente (pas de partage de code)
 - ✅ Chacun dans son module
+- ✅ Pas de tokens dynamiques, plus propre et facile à suivre
 
 ## Avantages de Cette Architecture
 

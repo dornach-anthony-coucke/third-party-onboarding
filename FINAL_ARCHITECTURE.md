@@ -78,9 +78,9 @@ MessagingAwsNestModule.forFeature([
 
 **Contient**:
 - `forRoot()` - Providers d'infrastructure
-- `forFeature()` - Registration de publishers
+- `registerPublishers()` - Registration de publishers
 - `PublisherConfig` - Interface de configuration
-- `createPublisherProvider()` - Factory AWS-specific
+- `PublisherRegistryInitializer` - Service d'initialisation AWS-specific
 
 ### `messaging-rabbitmq-nest` (Futur - Autonome RabbitMQ)
 
@@ -108,9 +108,9 @@ MessagingRabbitMQNestModule.forFeature([
 
 **Contiendra**:
 - `forRoot()` - Providers d'infrastructure
-- `forFeature()` - Registration de publishers
+- `registerPublishers()` - Registration de publishers
 - `PublisherConfig` - Même interface (copiée)
-- `createPublisherProvider()` - Factory RabbitMQ-specific
+- `PublisherRegistryInitializer` - Service d'initialisation RabbitMQ-specific
 
 ## 💡 Principe : Convention over Code Sharing
 
@@ -122,6 +122,7 @@ messaging-publishers-nest (prétend être agnostique)
     ├── import AWS clients ❌
     ├── import RabbitMQ clients ❌
     └── if/else pour chaque transport ❌
+    └── tokens dynamiques difficiles à suivre ❌
 ```
 
 **Problème** : Code "agnostique" qui contient en fait toute la logique spécifique!
@@ -130,17 +131,19 @@ messaging-publishers-nest (prétend être agnostique)
 
 ```
 messaging-aws-nest
-└── createPublisherProvider()
+└── PublisherRegistryInitializer (service avec OnModuleInit)
     ├── import AWS clients ✅
     └── logique AWS ✅
+    └── pas de tokens dynamiques ✅
 
 messaging-rabbitmq-nest
-└── createPublisherProvider()
+└── PublisherRegistryInitializer (service avec OnModuleInit)
     ├── import RabbitMQ clients ✅
     └── logique RabbitMQ ✅
+    └── pas de tokens dynamiques ✅
 ```
 
-**Avantage** : Chaque transport est autonome, pas de fausse abstraction!
+**Avantage** : Chaque transport est autonome, pas de fausse abstraction, code plus propre!
 
 ## 🚀 Usage
 
