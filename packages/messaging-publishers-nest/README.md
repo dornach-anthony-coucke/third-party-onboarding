@@ -8,7 +8,20 @@ This module is **separate from messaging infrastructure** to maintain clean sepa
 
 ✅ Apps that **only consume** messages don't need this module
 ✅ Apps that **publish** messages use `forFeature()` to register publishers
-✅ Keeps the door open for **swapping transport implementations** (AWS → NATS, Kafka, etc.)
+✅ Keeps the door open for **swapping transport implementations** (AWS → NATS, Kafka, RabbitMQ, etc.)
+✅ **Transport-agnostic configuration** - supports different messaging paradigms
+
+## Transport-Agnostic Configuration
+
+The configuration is intentionally generic to support different messaging paradigms:
+
+| Transport | Destination | Metadata | Paradigm |
+|-----------|-------------|----------|-----------|
+| **AWS SQS** | Queue name | `{ transportType: 'sqs' }` | Point-to-point direct |
+| **AWS SNS** | Topic name | `{ transportType: 'sns' }` | Pub/sub via topic |
+| **RabbitMQ** | Exchange name | `{ routingKey, exchangeType }` | Exchange routing |
+| **Kafka** | Topic name | `{ partitionKey, compressionType }` | Topic + partitions |
+| **NATS** | Subject | `{ streamName, durable }` | Subject-based |
 
 ## Installation
 
@@ -24,7 +37,7 @@ This is a workspace package. Add it to your app's dependencies:
 
 ## Usage
 
-### For Apps That Publish Messages
+### For Apps That Publish Messages (AWS)
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -39,13 +52,38 @@ import { MessagingPublishersModule } from '@third-party-onboarding-manager/messa
     MessagingPublishersModule.forFeature([
       {
         key: 'company-registry',
-        queueName: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
-        type: 'sqs',
+        destination: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
       },
       {
         key: 'notifications',
-        queueName: 'NOTIFICATIONS_TOPIC',
-        type: 'sns',
+        destination: 'NOTIFICATIONS_TOPIC',
+        metadata: { transportType: 'sns' },
+      },
+    ]),
+  ],
+})
+export class AppModule {}
+```
+
+### For Apps That Publish Messages (RabbitMQ - Future)
+
+```typescript
+import { MessagingRabbitMQNestModule } from '@third-party-onboarding-manager/messaging-rabbitmq-nest';
+import { MessagingPublishersModule } from '@third-party-onboarding-manager/messaging-publishers-nest';
+
+@Module({
+  imports: [
+    MessagingCoreModule.forRoot(),
+    MessagingRabbitMQNestModule.forRoot(), // ← Different infrastructure
+    MessagingPublishersModule.forFeature([
+      {
+        key: 'company-registry',
+        destination: 'COMPANY_REGISTRY_EXCHANGE',
+        metadata: {
+          routingKey: 'company.commands.create',
+          exchangeType: 'topic'
+        },
       },
     ]),
   ],
@@ -84,18 +122,60 @@ Registers publishers into the `PublisherRegistry`.
 ```typescript
 interface PublisherConfig {
   key: string;        // Registry key (e.g., 'company-registry')
-  queueName: string;  // Environment variable name (e.g., 'COMPANY_QUEUE')
-  type: 'sqs' | 'sns'; // Publisher type
+  destination: string;  // Environment variable name
+  metadata?: Record<string, unknown>; // Transport-specific metadata
 }
 ```
 
-**Example:**
+**AWS-specific type-safe config:**
 ```typescript
+interface AwsPublisherConfig extends PublisherConfig {
+  metadata: {
+    transportType: 'sqs' | 'sns';
+  };
+}
+```
+
+**RabbitMQ-specific type-safe config (future):**
+```typescript
+interface RabbitMQPublisherConfig extends PublisherConfig {
+  metadata: {
+    routingKey: string;
+    exchangeType?: 'direct' | 'topic' | 'fanout' | 'headers';
+  };
+}
+```
+
+**Examples:**
+
+```typescript
+// AWS SQS
 MessagingPublishersModule.forFeature([
   {
     key: 'company-registry',
-    queueName: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
-    type: 'sqs'
+    destination: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+    metadata: { transportType: 'sqs' }
+  }
+])
+
+// AWS SNS
+MessagingPublishersModule.forFeature([
+  {
+    key: 'notifications',
+    destination: 'NOTIFICATIONS_TOPIC',
+    metadata: { transportType: 'sns' }
+  }
+])
+
+// RabbitMQ (future)
+MessagingPublishersModule.forFeature([
+  {
+    key: 'company-registry',
+    destination: 'COMPANY_REGISTRY_EXCHANGE',
+    metadata: {
+      routingKey: 'company.commands.create',
+      exchangeType: 'topic'
+    }
   }
 ])
 ```
