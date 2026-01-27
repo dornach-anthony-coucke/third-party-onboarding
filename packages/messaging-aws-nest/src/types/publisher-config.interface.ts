@@ -22,23 +22,25 @@ export interface PublisherConfig {
 
   /**
    * The destination where messages will be published.
-   * Interpretation depends on the messaging infrastructure:
+   * This should be the actual destination value (queue name, topic name, etc.).
+   * 
+   * When using registerPublishersAsync, retrieve this from ConfigService:
    * 
    * AWS SQS/SNS:
-   * - Environment variable name containing queue/topic name
-   * - Example: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE'
+   * - Queue or topic name from environment variable
+   * - Example: configService.getOrThrow('COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE')
    * 
    * RabbitMQ:
-   * - Environment variable name containing exchange name
-   * - Example: 'COMPANY_REGISTRY_EXCHANGE'
+   * - Exchange name from environment variable
+   * - Example: configService.getOrThrow('COMPANY_REGISTRY_EXCHANGE')
    * 
    * Kafka:
-   * - Environment variable name containing topic name
-   * - Example: 'COMPANY_REGISTRY_TOPIC'
+   * - Topic name from environment variable
+   * - Example: configService.getOrThrow('COMPANY_REGISTRY_TOPIC')
    * 
    * NATS:
-   * - Environment variable name containing subject
-   * - Example: 'COMPANY_REGISTRY_SUBJECT'
+   * - Subject from environment variable
+   * - Example: configService.getOrThrow('COMPANY_REGISTRY_SUBJECT')
    */
   destination: string;
 

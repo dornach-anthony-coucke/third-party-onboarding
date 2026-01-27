@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import type { SQSClient } from '@aws-sdk/client-sqs';
 import type { SNSClient } from '@aws-sdk/client-sns';
-import { ConfigService } from '@nestjs/config';
 import {
   createQueueUrl,
   createTopicArn,
@@ -26,14 +25,17 @@ import type { PublisherConfig } from '../types/publisher-config.interface.js';
  * For Kafka, it would live in messaging-kafka-nest.
  *
  * @example
- * // Module configuration
- * MessagingAwsNestModule.registerPublishers([
- *   {
- *     key: 'company-registry',
- *     destination: 'COMPANY_REGISTRY_QUEUE',
- *     metadata: { transportType: 'sqs' }
- *   }
- * ])
+ * // Module configuration using registerPublishersAsync
+ * MessagingAwsNestModule.registerPublishersAsync({
+ *   useFactory: (configService: ConfigService) => [
+ *     {
+ *       key: 'company-registry',
+ *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
+ *       metadata: { transportType: 'sqs' }
+ *     }
+ *   ],
+ *   inject: [ConfigService]
+ * })
  */
 @Injectable()
 export class PublisherRegistryInitializer implements OnModuleInit {
@@ -44,7 +46,6 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     private readonly snsClient: SNSClient,
     @Inject(AWS_TRANSPORT_CONFIG)
     private readonly transportConfig: AwsMessagingConfig,
-    private readonly configService: ConfigService,
     @Inject(PUBLISHER_REGISTRY)
     private readonly publisherRegistry: PublisherRegistry,
     @Inject(PUBLISHER_CONFIGS)
@@ -64,13 +65,13 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     if (transportType === 'sqs') {
       const queueUrl = createQueueUrl(
         this.transportConfig,
-        this.configService.getOrThrow(config.destination),
+        config.destination,
       );
       this.publisherRegistry.register(config.key, new SqsPublisher(this.sqsClient, queueUrl));
     } else if (transportType === 'sns') {
       const topicArn = createTopicArn(
         this.transportConfig,
-        this.configService.getOrThrow(config.destination),
+        config.destination,
       );
       this.publisherRegistry.register(config.key, new SnsPublisher(this.snsClient, topicArn));
     } else {
