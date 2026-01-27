@@ -1,7 +1,8 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { MessageListener, MessageRouter } from '@third-party-onboarding-manager/messaging-core';
+import { MessageListener, MessageRouter, PublisherRegistry } from '@third-party-onboarding-manager/messaging-core';
 import { MESSAGE_LISTENERS } from './tokens/message-listeners.token.js';
 import { MESSAGE_ROUTER } from './tokens/message-router.token.js';
+import { PUBLISHER_REGISTRY } from './tokens/publisher-registry.token.js';
 
 @Module({})
 export class MessagingCoreModule {
@@ -15,12 +16,17 @@ export class MessagingCoreModule {
         useFactory: (listeners: MessageListener<unknown>[]) => new MessageRouter(listeners),
         inject: [MESSAGE_LISTENERS],
       },
+
+      {
+        provide: PUBLISHER_REGISTRY,
+        useFactory: () => new PublisherRegistry(),
+      },
     ];
 
     return {
       module: MessagingCoreModule,
       providers,
-      exports: [MESSAGE_ROUTER, MESSAGE_LISTENERS],
+      exports: [MESSAGE_ROUTER, MESSAGE_LISTENERS, PUBLISHER_REGISTRY],
     };
   }
 }
