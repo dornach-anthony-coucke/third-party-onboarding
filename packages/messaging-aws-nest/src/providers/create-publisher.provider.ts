@@ -25,7 +25,7 @@ import type { PublisherConfig } from '../types/publisher-config.interface.js';
  */
 export function createPublisherProvider(config: PublisherConfig): Provider {
   return {
-    provide: `PUBLISHER_${config.key.toUpperCase()}_INITIALIZER`,
+    provide: `PUBLISHER_INITIALIZER_${config.key}`,
     useFactory: (
       sqsClient: SQSClient,
       snsClient: SNSClient,
@@ -45,6 +45,10 @@ export function createPublisherProvider(config: PublisherConfig): Provider {
           configService.getOrThrow(config.queueName),
         );
         publisherRegistry.register(config.key, new SnsPublisher(snsClient, topicArn));
+      } else {
+        throw new Error(
+          `Unsupported publisher type: ${config.type}. Supported types are 'sqs' and 'sns'.`
+        );
       }
 
       // Return a marker that the publisher was initialized
