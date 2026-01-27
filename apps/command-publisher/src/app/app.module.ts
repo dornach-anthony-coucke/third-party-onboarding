@@ -17,27 +17,24 @@ import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-c
     DatabaseModule,
     MessagingCoreModule.forRoot(),
     MessagingAwsNestModule.forRoot(), // AWS infrastructure
-    MessagingAwsNestModule.registerPublishersAsync({
-      useFactory: (configService: ConfigService) => [
-        // AWS publisher registration
-        {
-          key: 'third-party-onboarding-manager',
-          destination: configService.getOrThrow<string>('ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE'),
-          metadata: { transportType: 'sqs' },
-        },
-        {
-          key: 'company-registry',
-          destination: configService.getOrThrow<string>('COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE'),
-          metadata: { transportType: 'sqs' },
-        },
-        {
-          key: 'account-registry',
-          destination: configService.getOrThrow<string>('ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE'),
-          metadata: { transportType: 'sqs' },
-        },
-      ],
-      inject: [ConfigService],
-    }),
+    // Simple, declarative API - ConfigService resolution handled by the module
+    MessagingAwsNestModule.registerPublishers([
+      {
+        key: 'third-party-onboarding-manager',
+        destinationEnvironmentKey: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
+      },
+      {
+        key: 'company-registry',
+        destinationEnvironmentKey: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
+      },
+      {
+        key: 'account-registry',
+        destinationEnvironmentKey: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
+      },
+    ]),
   ],
   providers: [CommandPublisher, CommandOutboxPoller, CommandOutboxRepository],
 })

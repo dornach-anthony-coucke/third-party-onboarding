@@ -4,6 +4,10 @@
  * The configuration is intentionally generic to support different messaging transports.
  * Each transport module (messaging-aws-nest, messaging-kafka-nest, etc.) is responsible
  * for interpreting this configuration correctly for its transport.
+ * 
+ * Two modes of configuration are supported:
+ * 1. **Simple (declarative)**: Provide `destinationEnvironmentKey` - the transport module will resolve the value from ConfigService
+ * 2. **Advanced (pre-resolved)**: Provide `destination` with the actual value (e.g., for remote config, tests, hardcoded values)
  */
 export interface PublisherConfig {
   /**
@@ -15,13 +19,28 @@ export interface PublisherConfig {
   key: string;
 
   /**
-   * The destination where messages will be published.
+   * The destination where messages will be published (actual resolved value).
    * 
-   * This should be the actual destination name (queue name, topic name, exchange name, etc.).
+   * Use this for advanced scenarios where you need full control over the value source
+   * (e.g., remote config, database, hardcoded values, tests).
    * 
-   * When using registerPublishersAsync, resolve this from ConfigService in the useFactory.
+   * **Note**: Either `destination` OR `destinationEnvironmentKey` must be provided, not both.
+   * 
+   * @example 'my-queue-name', 'my-topic-name'
    */
-  destination: string;
+  destination?: string;
+
+  /**
+   * The environment variable key containing the destination value.
+   * 
+   * Use this for the simple, declarative approach. The transport module will resolve
+   * the value from ConfigService at initialization time.
+   * 
+   * **Note**: Either `destination` OR `destinationEnvironmentKey` must be provided, not both.
+   * 
+   * @example 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE'
+   */
+  destinationEnvironmentKey?: string;
 
   /**
    * Optional metadata for transport-specific configuration.
