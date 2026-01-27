@@ -14,6 +14,7 @@ import type { PublisherRegistry } from '@third-party-onboarding-manager/messagin
 import { AWS_TRANSPORT_CONFIG } from '../tokens/aws-transport-config.token.js';
 import { AWS_SQS_CLIENT_PROVIDER } from '../tokens/sqs-client.token.js';
 import { AWS_SNS_CLIENT_PROVIDER } from '../tokens/sns-client.token.js';
+import { PUBLISHER_CONFIGS_TOKEN } from '../tokens/publisher-configs.token.js';
 import type { PublisherConfig } from '../types/publisher-config.interface.js';
 
 /**
@@ -46,7 +47,7 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     private readonly configService: ConfigService,
     @Inject(PUBLISHER_REGISTRY)
     private readonly publisherRegistry: PublisherRegistry,
-    @Inject('PUBLISHER_CONFIGS')
+    @Inject(PUBLISHER_CONFIGS_TOKEN)
     private readonly publisherConfigs: PublisherConfig[],
   ) {}
 
