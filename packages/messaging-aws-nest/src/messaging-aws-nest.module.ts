@@ -1,5 +1,4 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { DynamicModule, Module } from '@nestjs/common';
 import { AwsTransportConfigProvider } from './providers/aws-transport-config.provider.js';
 import { AwsSqsClientProvider } from './providers/aws-sqs-client.provider.js';
 import { AwsSnsClientProvider } from './providers/aws-sns-client.provider.js';
@@ -32,8 +31,8 @@ export class MessagingAwsNestModule {
   }
 
   static registerPublishersAsync(options: {
-    useFactory: (...args: any[]) => PublisherConfig[] | Promise<PublisherConfig[]>;
-    inject?: any[];
+    useFactory: (...args: unknown[]) => PublisherConfig[] | Promise<PublisherConfig[]>;
+    inject?: unknown[];
   }): DynamicModule {
     return {
       module: MessagingAwsNestModule,
