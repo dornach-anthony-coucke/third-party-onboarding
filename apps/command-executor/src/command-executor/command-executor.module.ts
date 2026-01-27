@@ -17,7 +17,7 @@ import {
 @Module({
   imports: [
     MapperRegistryModule.forFeature(event_mappers),
-    MessagingAwsNestModule,
+    MessagingAwsNestModule.forRoot(),
     MessagingCoreModule.forRoot(),
   ],
   providers: [
