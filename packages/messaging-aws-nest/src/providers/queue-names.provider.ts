@@ -31,8 +31,9 @@ export const accountRegistryPublicCommandsQueueNameProvider = {
 };
 
 /**
- * Provides a Map of all queue name tokens to their resolved values.
- * This makes it easy to look up queue names by their token constants.
+ * Provides a Map of all destination tokens to their resolved values.
+ * This makes it easy to look up destination names (queues, topics, etc.) by their token constants.
+ * Values are retrieved from ConfigService via individual providers.
  */
 export const queueNamesMapProvider = {
   provide: QUEUE_NAMES_MAP,
