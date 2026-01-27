@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import type { SQSClient } from '@aws-sdk/client-sqs';
 import type { SNSClient } from '@aws-sdk/client-sns';
+import type { PublisherConfig } from '@third-party-onboarding-manager/messaging-core-nest';
 import {
   createQueueUrl,
   createTopicArn,
@@ -14,7 +15,6 @@ import { AWS_TRANSPORT_CONFIG } from '../tokens/aws-transport-config.token.js';
 import { AWS_SQS_CLIENT_PROVIDER } from '../tokens/sqs-client.token.js';
 import { AWS_SNS_CLIENT_PROVIDER } from '../tokens/sns-client.token.js';
 import { PUBLISHER_CONFIGS } from '../tokens/publisher-configs.token.js';
-import type { PublisherConfig } from '../types/publisher-config.interface.js';
 
 /**
  * Service that initializes AWS publishers in the PublisherRegistry during module initialization.
