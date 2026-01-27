@@ -6,6 +6,7 @@ import { CommandPublisher } from './services/command-publisher.service';
 import { CommandOutboxPoller } from './services/command-outbox-poller.service';
 import { CommandOutboxRepository } from './repositpories/command-outbox.repository';
 import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messaging-aws-nest';
+import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest-module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messagin
       isGlobal: true,
     }),
     DatabaseModule,
+    MessagingCoreModule.forRoot(),
     MessagingAwsNestModule,
   ],
   providers: [CommandPublisher, CommandOutboxPoller, CommandOutboxRepository],

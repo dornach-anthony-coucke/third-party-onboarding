@@ -5,6 +5,7 @@ import {
   MessageEnvelope,
   MessageRouter,
   RawQueueMessage,
+  StandardMessageParser,
   type QueueClient,
 } from '@third-party-onboarding-manager/messaging-core';
 import {
@@ -30,15 +31,7 @@ export class OnboardingManagerInternalCommandConsumer extends AbstractQueueConsu
   }
 
   protected parse(rawMessage: RawQueueMessage): MessageEnvelope<'COMMAND', unknown> {
-    const messageAttributes = rawMessage.attributes;
-    if (!messageAttributes?.type) throw new Error('Unprocessable message : type is missing');
-
-    return {
-      id: rawMessage.id,
-      destinationBoundedContext: 'third-party-onboarding-manager',
-      payload: rawMessage.body,
-      type: messageAttributes.type,
-    };
+    return StandardMessageParser.parseCommand(rawMessage, 'third-party-onboarding-manager');
   }
 
   get queueName(): string {
