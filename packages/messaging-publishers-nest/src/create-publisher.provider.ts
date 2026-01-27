@@ -11,10 +11,12 @@ import {
 } from '@third-party-onboarding-manager/messaging-aws';
 import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest-module';
 import type { PublisherRegistry } from '@third-party-onboarding-manager/messaging-core';
-import { AWS_TRANSPORT_CONFIG } from '../tokens/aws-transport-config.token.js';
-import { AWS_SQS_CLIENT_PROVIDER } from '../tokens/sqs-client.token.js';
-import { AWS_SNS_CLIENT_PROVIDER } from '../tokens/sns-client.token.js';
-import type { PublisherConfig } from '../types/publisher-config.interface.js';
+import {
+  AWS_TRANSPORT_CONFIG,
+  AWS_SQS_CLIENT_PROVIDER,
+  AWS_SNS_CLIENT_PROVIDER,
+} from '@third-party-onboarding-manager/messaging-aws-nest';
+import type { PublisherConfig } from './publisher-config.interface.js';
 
 /**
  * Creates a provider that registers a publisher into the PublisherRegistry
