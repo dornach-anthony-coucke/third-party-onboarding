@@ -1,69 +1,149 @@
-# @third-party-onboarding-manager/database-nest-module
+# @third-party-onboarding-manager/messaging-aws-nest
 
-Reusable NestJS Database module based on @third-party-onboarding-manager/drizzle-core.
+Reusable NestJS messaging module based on @third-party-onboarding-manager/messaging-aws and AWS SQS/SNS.
 
 ## Features
 
-- Global NestJS module for database access
-- Synchronous and asynchronous configuration
-- Drizzle ORM integration
-- Injectable database connection
+- Global AWS messaging infrastructure (SQS/SNS clients)
+- Decoupled publisher registration via `forFeature()`
+- Integration with `PublisherRegistry` for interchangeable publishers
+- Support for both SQS queues and SNS topics
+- Type-safe configuration
 
-## Usage
+## New Decoupled API (Recommended)
 
-### Synchronous configuration
+### Basic Setup
+
+1. **Import core infrastructure in your root module:**
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '@third-party-onboarding-manager/database-nest-module';
+import { ConfigModule } from '@nestjs/config';
+import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messaging-aws-nest';
 
 @Module({
   imports: [
-    DatabaseModule.forRoot({
-      connectionString: process.env.DATABASE_URL,
-      maxConnections: 10,
-      ssl: true,
-    }),
+    ConfigModule.forRoot({ isGlobal: true }),
+    MessagingCoreModule.forRoot(), // Provides PublisherRegistry
+    MessagingAwsNestModule.forRoot(), // Provides AWS clients globally
   ],
 })
 export class AppModule {}
 ```
 
-### Asynchronous configuration
+2. **Register publishers in feature modules where needed:**
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { DatabaseModule } from '@third-party-onboarding-manager/database-nest-module';
+import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messaging-aws-nest';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    DatabaseModule.forRootAsync({
-      useFactory: (configService: ConfigService) => ({
-        connectionString: configService.get('DATABASE_URL'),
-        maxConnections: 10,
-        ssl: true,
-      }),
-      inject: [ConfigService],
-    }),
+    MessagingAwsNestModule.forFeature([
+      {
+        key: 'company-registry', // Registry key to lookup the publisher
+        queueName: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE', // Environment variable name
+        type: 'sqs', // 'sqs' or 'sns'
+      },
+    ]),
   ],
+  providers: [MyService],
 })
-export class AppModule {}
+export class MyFeatureModule {}
 ```
 
-### Injecting the database
+### Using Publishers
+
+Publishers are accessed via the `PublisherRegistry`:
 
 ```typescript
 import { Injectable, Inject } from '@nestjs/common';
-import { DATABASE_CONNECTION } from '@third-party-onboarding-manager/database-nest-module';
+import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { PublisherRegistry } from '@third-party-onboarding-manager/messaging-core';
+import { randomUUID } from 'crypto';
 
 @Injectable()
-export class UsersService {
-  constructor(@Inject(DATABASE_CONNECTION) private db: any) {}
+export class MyService {
+  constructor(
+    @Inject(PUBLISHER_REGISTRY)
+    private readonly publisherRegistry: PublisherRegistry,
+  ) {}
 
-  async findAll() {
-    return this.db.select().from(users);
+  async sendCommand(payload: any) {
+    const publisher = this.publisherRegistry.get('company-registry');
+    await publisher.publish({
+      id: randomUUID(),
+      type: 'company.create',
+      destinationBoundedContext: 'company-registry',
+      payload,
+    });
   }
 }
 ```
+
+### Multiple Publishers Example
+
+```typescript
+@Module({
+  imports: [
+    MessagingAwsNestModule.forFeature([
+      {
+        key: 'company-registry',
+        queueName: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        type: 'sqs',
+      },
+      {
+        key: 'account-registry',
+        queueName: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        type: 'sqs',
+      },
+      {
+        key: 'notifications',
+        queueName: 'NOTIFICATIONS_TOPIC_NAME',
+        type: 'sns',
+      },
+    ]),
+  ],
+})
+export class MyFeatureModule {}
+```
+
+## Legacy API (Deprecated)
+
+The static module import still works but registers ALL publishers globally:
+
+```typescript
+@Module({
+  imports: [
+    MessagingAwsNestModule, // ⚠️ Deprecated: Registers all publishers
+  ],
+})
+export class AppModule {}
+```
+
+**Migration:** Replace with `forRoot()` + `forFeature()` for better decoupling.
+
+## Benefits of the New API
+
+✅ **Decoupled** - Register publishers only where needed
+✅ **Flexible** - Different modules can register different publishers
+✅ **Explicit** - Clear which publishers each module uses
+✅ **Maintainable** - No need to modify shared module when adding publishers
+✅ **Testable** - Easier to mock publishers at module level
+
+## Environment Variables
+
+Required environment variables (provided by AWS infrastructure):
+
+- `AWS_REGION` - AWS region
+- `AWS_ACCOUNT_ID` - AWS account ID
+- `AWS_ACCESS_KEY_ID` - AWS credentials
+- `AWS_SECRET_ACCESS_KEY` - AWS credentials
+
+Queue/topic names (per publisher):
+- Environment variable name specified in `queueName` field of `PublisherConfig`
+
+Example:
+- `COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE=company-public-commands`
+- `NOTIFICATIONS_TOPIC_NAME=notifications-topic`
