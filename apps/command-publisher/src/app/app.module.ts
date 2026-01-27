@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { DatabaseModule } from '@third-party-onboarding-manager/database-nest-module';
 import { CqrsModule } from '@nestjs/cqrs';
 import { CommandPublisher } from './services/command-publisher.service';
@@ -17,21 +17,21 @@ import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-c
     DatabaseModule,
     MessagingCoreModule.forRoot(),
     MessagingAwsNestModule.forRoot(), // AWS infrastructure
+    // Simple, declarative API - ConfigService resolution handled by the module
     MessagingAwsNestModule.registerPublishers([
-      // AWS publisher registration
       {
         key: 'third-party-onboarding-manager',
-        destination: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',
+        destinationEnvironmentKey: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',
         metadata: { transportType: 'sqs' },
       },
       {
         key: 'company-registry',
-        destination: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        destinationEnvironmentKey: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
         metadata: { transportType: 'sqs' },
       },
       {
         key: 'account-registry',
-        destination: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        destinationEnvironmentKey: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
         metadata: { transportType: 'sqs' },
       },
     ]),

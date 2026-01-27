@@ -1,7 +1,8 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, Optional } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { SQSClient } from '@aws-sdk/client-sqs';
 import type { SNSClient } from '@aws-sdk/client-sns';
-import { ConfigService } from '@nestjs/config';
+import type { PublisherConfig } from '@third-party-onboarding-manager/messaging-core-nest';
 import {
   createQueueUrl,
   createTopicArn,
@@ -15,25 +16,40 @@ import { AWS_TRANSPORT_CONFIG } from '../tokens/aws-transport-config.token.js';
 import { AWS_SQS_CLIENT_PROVIDER } from '../tokens/sqs-client.token.js';
 import { AWS_SNS_CLIENT_PROVIDER } from '../tokens/sns-client.token.js';
 import { PUBLISHER_CONFIGS } from '../tokens/publisher-configs.token.js';
-import type { PublisherConfig } from '../types/publisher-config.interface.js';
 
 /**
- * Service that initializes publishers in the PublisherRegistry during module initialization.
- * This is a cleaner alternative to using dynamic provider tokens.
+ * Service that initializes AWS publishers in the PublisherRegistry during module initialization.
  *
  * This implementation is AWS-specific and lives in messaging-aws-nest.
- * For RabbitMQ, a similar service would live in messaging-rabbitmq-nest.
- * For Kafka, it would live in messaging-kafka-nest.
+ * Other transports would have their own implementations:
+ * - RabbitMQ: messaging-rabbitmq-nest/PublisherRegistryInitializer
+ * - Kafka: messaging-kafka-nest/PublisherRegistryInitializer
+ * - NATS: messaging-nats-nest/PublisherRegistryInitializer
  *
+ * Supports two configuration modes:
+ *
+ * **Simple (recommended)**: Use `destinationEnvironmentKey` for declarative config
  * @example
- * // Module configuration
  * MessagingAwsNestModule.registerPublishers([
  *   {
  *     key: 'company-registry',
- *     destination: 'COMPANY_REGISTRY_QUEUE',
+ *     destinationEnvironmentKey: 'COMPANY_REGISTRY_QUEUE',
  *     metadata: { transportType: 'sqs' }
  *   }
  * ])
+ *
+ * **Advanced**: Use `registerPublishersAsync` with `useFactory` for complex scenarios
+ * @example
+ * MessagingAwsNestModule.registerPublishersAsync({
+ *   useFactory: (configService: ConfigService) => [
+ *     {
+ *       key: 'company-registry',
+ *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
+ *       metadata: { transportType: 'sqs' }
+ *     }
+ *   ],
+ *   inject: [ConfigService]
+ * })
  */
 @Injectable()
 export class PublisherRegistryInitializer implements OnModuleInit {
@@ -44,11 +60,12 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     private readonly snsClient: SNSClient,
     @Inject(AWS_TRANSPORT_CONFIG)
     private readonly transportConfig: AwsMessagingConfig,
-    private readonly configService: ConfigService,
     @Inject(PUBLISHER_REGISTRY)
     private readonly publisherRegistry: PublisherRegistry,
     @Inject(PUBLISHER_CONFIGS)
     private readonly publisherConfigs: PublisherConfig[],
+    @Optional()
+    private readonly configService?: ConfigService,
   ) {}
 
   onModuleInit(): void {
@@ -61,22 +78,56 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     // Extract transport type from metadata (defaults to 'sqs' for backward compatibility)
     const transportType = (config.metadata?.transportType as 'sqs' | 'sns') ?? 'sqs';
 
+    // Resolve the destination name from either destinationEnvironmentKey or destination
+    const destinationName = this.resolveDestination(config);
+
     if (transportType === 'sqs') {
-      const queueUrl = createQueueUrl(
-        this.transportConfig,
-        this.configService.getOrThrow(config.destination),
-      );
+      const queueUrl = createQueueUrl(this.transportConfig, destinationName);
       this.publisherRegistry.register(config.key, new SqsPublisher(this.sqsClient, queueUrl));
     } else if (transportType === 'sns') {
-      const topicArn = createTopicArn(
-        this.transportConfig,
-        this.configService.getOrThrow(config.destination),
-      );
+      const topicArn = createTopicArn(this.transportConfig, destinationName);
       this.publisherRegistry.register(config.key, new SnsPublisher(this.snsClient, topicArn));
     } else {
       throw new Error(
         `Unsupported AWS transport type: ${transportType}. Supported types are 'sqs' and 'sns'.`,
       );
     }
+  }
+
+  private resolveDestination(config: PublisherConfig): string {
+    // Validate that exactly one of destination or destinationEnvironmentKey is provided
+    const hasDestination = config.destination !== undefined && config.destination.trim() !== '';
+    const hasEnvKey =
+      config.destinationEnvironmentKey !== undefined &&
+      config.destinationEnvironmentKey.trim() !== '';
+
+    if (hasDestination && hasEnvKey) {
+      throw new Error(
+        `Publisher config for key '${config.key}' has both 'destination' and 'destinationEnvironmentKey'. ` +
+          `Provide only one.`,
+      );
+    }
+
+    if (!hasDestination && !hasEnvKey) {
+      throw new Error(
+        `Publisher config for key '${config.key}' must provide either 'destination' or 'destinationEnvironmentKey'.`,
+      );
+    }
+
+    // If destination is provided directly, use it (advanced mode)
+    if (hasDestination) {
+      return config.destination!.trim();
+    }
+
+    // If destinationEnvironmentKey is provided, resolve from ConfigService (simple mode)
+    if (!this.configService) {
+      throw new Error(
+        `Publisher config for key '${config.key}' uses 'destinationEnvironmentKey' but ConfigService is not available. ` +
+          `Make sure ConfigModule is imported in your application module.`,
+      );
+    }
+
+    const envValue = this.configService.getOrThrow<string>(config.destinationEnvironmentKey!);
+    return envValue;
   }
 }
