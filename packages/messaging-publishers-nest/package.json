@@ -1,0 +1,32 @@
+{
+  "name": "@third-party-onboarding-manager/messaging-publishers-nest",
+  "version": "0.0.1",
+  "private": true,
+  "description": "NestJS module for registering message publishers into PublisherRegistry",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@third-party-onboarding-manager/messaging-aws": "workspace:*",
+    "@third-party-onboarding-manager/messaging-aws-nest": "workspace:*",
+    "@third-party-onboarding-manager/messaging-core": "workspace:*",
+    "@third-party-onboarding-manager/messaging-core-nest-module": "workspace:*"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^11",
+    "@nestjs/config": "^4"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.1",
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "@nestjs/common": "^11",
+    "@nestjs/config": "^4"
+  }
+}
