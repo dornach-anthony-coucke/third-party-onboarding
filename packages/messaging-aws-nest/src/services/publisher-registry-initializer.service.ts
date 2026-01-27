@@ -96,8 +96,10 @@ export class PublisherRegistryInitializer implements OnModuleInit {
 
   private resolveDestination(config: PublisherConfig): string {
     // Validate that exactly one of destination or destinationEnvironmentKey is provided
-    const hasDestination = config.destination !== undefined;
-    const hasEnvKey = config.destinationEnvironmentKey !== undefined;
+    const hasDestination = config.destination !== undefined && config.destination.trim() !== '';
+    const hasEnvKey =
+      config.destinationEnvironmentKey !== undefined &&
+      config.destinationEnvironmentKey.trim() !== '';
 
     if (hasDestination && hasEnvKey) {
       throw new Error(
@@ -114,14 +116,14 @@ export class PublisherRegistryInitializer implements OnModuleInit {
 
     // If destination is provided directly, use it (advanced mode)
     if (hasDestination) {
-      return config.destination!;
+      return config.destination!.trim();
     }
 
     // If destinationEnvironmentKey is provided, resolve from ConfigService (simple mode)
     if (!this.configService) {
       throw new Error(
         `Publisher config for key '${config.key}' uses 'destinationEnvironmentKey' but ConfigService is not available. ` +
-          `Make sure ConfigModule is imported and available globally.`,
+          `Make sure ConfigModule is imported in your application module.`,
       );
     }
 
