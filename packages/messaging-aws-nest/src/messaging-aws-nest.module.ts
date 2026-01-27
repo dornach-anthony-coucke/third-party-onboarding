@@ -31,6 +31,42 @@ export class MessagingAwsNestModule {
     };
   }
 
+  /**
+   * Register publishers asynchronously with dependency injection support.
+   * 
+   * This method allows you to inject dependencies (like ConfigService) into the
+   * factory function to dynamically configure publishers at runtime.
+   * 
+   * @param options Configuration options for async publisher registration
+   * @param options.useFactory Factory function that receives injected dependencies and returns publisher configurations
+   * @param options.inject Optional array of dependencies to inject into the factory. Defaults to [ConfigService]
+   * @returns Dynamic module configuration
+   * 
+   * @example
+   * // Using ConfigService (default)
+   * MessagingAwsNestModule.registerPublishersAsync({
+   *   useFactory: (configService: ConfigService) => [
+   *     {
+   *       key: 'company-registry',
+   *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
+   *       metadata: { transportType: 'sqs' }
+   *     }
+   *   ]
+   * })
+   * 
+   * @example
+   * // With explicit injection
+   * MessagingAwsNestModule.registerPublishersAsync({
+   *   useFactory: (configService: ConfigService, customService: CustomService) => [
+   *     {
+   *       key: 'company-registry',
+   *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
+   *       metadata: { transportType: 'sqs' }
+   *     }
+   *   ],
+   *   inject: [ConfigService, CustomService]
+   * })
+   */
   static registerPublishersAsync(options: {
     useFactory: (...args: unknown[]) => PublisherConfig[] | Promise<PublisherConfig[]>;
     inject?: unknown[];
