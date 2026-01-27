@@ -9,6 +9,7 @@ import {
   onboardingManagerInternalCommandsQueueNameProvider,
   companyRegistryPublicCommandsQueueNameProvider,
   accountRegistryPublicCommandsQueueNameProvider,
+  queueNamesMapProvider,
 } from './providers/queue-names.provider.js';
 
 @Module({})
@@ -23,6 +24,7 @@ export class MessagingAwsNestModule {
         onboardingManagerInternalCommandsQueueNameProvider,
         companyRegistryPublicCommandsQueueNameProvider,
         accountRegistryPublicCommandsQueueNameProvider,
+        queueNamesMapProvider,
       ],
       exports: [
         AwsTransportConfigProvider,
@@ -31,6 +33,7 @@ export class MessagingAwsNestModule {
         onboardingManagerInternalCommandsQueueNameProvider,
         companyRegistryPublicCommandsQueueNameProvider,
         accountRegistryPublicCommandsQueueNameProvider,
+        queueNamesMapProvider,
       ],
       global: true,
     };
