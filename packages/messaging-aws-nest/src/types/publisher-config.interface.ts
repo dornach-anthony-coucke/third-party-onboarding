@@ -23,27 +23,31 @@ export interface PublisherConfig {
   /**
    * The destination where messages will be published.
    * 
-   * Use the provided token constants for queue/topic names, which are injected
-   * as providers that retrieve configuration from ConfigService:
+   * This should be the actual destination name (queue name, topic name, exchange name, etc.).
    * 
-   * AWS SQS/SNS:
-   * - Use token constants like ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE_NAME
-   * - Example: destination: COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE_NAME
+   * When using registerPublishersAsync, resolve this from ConfigService in the useFactory:
    * 
-   * RabbitMQ:
-   * - Use token constants for exchange names (when implemented)
-   * - Example: destination: COMPANY_REGISTRY_EXCHANGE_NAME
+   * @example
+   * // AWS SQS/SNS
+   * MessagingAwsNestModule.registerPublishersAsync({
+   *   useFactory: (configService: ConfigService) => [{
+   *     key: 'company-registry',
+   *     destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
+   *     metadata: { transportType: 'sqs' }
+   *   }],
+   *   inject: [ConfigService]
+   * })
    * 
-   * Kafka:
-   * - Use token constants for topic names (when implemented)
-   * - Example: destination: COMPANY_REGISTRY_TOPIC_NAME
-   * 
-   * NATS:
-   * - Use token constants for subject names (when implemented)
-   * - Example: destination: COMPANY_REGISTRY_SUBJECT_NAME
-   * 
-   * For backward compatibility, you can also pass a string directly,
-   * which will be used as-is without ConfigService lookup.
+   * @example
+   * // RabbitMQ (future)
+   * MessagingRabbitMQNestModule.registerPublishersAsync({
+   *   useFactory: (configService: ConfigService) => [{
+   *     key: 'company-registry',
+   *     destination: configService.getOrThrow('COMPANY_REGISTRY_EXCHANGE'),
+   *     metadata: { routingKey: 'company.commands' }
+   *   }],
+   *   inject: [ConfigService]
+   * })
    */
   destination: string;
 

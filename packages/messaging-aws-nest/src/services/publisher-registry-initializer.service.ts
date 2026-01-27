@@ -1,7 +1,6 @@
 import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
 import type { SQSClient } from '@aws-sdk/client-sqs';
 import type { SNSClient } from '@aws-sdk/client-sns';
-import { ConfigService } from '@nestjs/config';
 import {
   createQueueUrl,
   createTopicArn,
@@ -18,22 +17,29 @@ import { PUBLISHER_CONFIGS } from '../tokens/publisher-configs.token.js';
 import type { PublisherConfig } from '../types/publisher-config.interface.js';
 
 /**
- * Service that initializes publishers in the PublisherRegistry during module initialization.
- * This is a cleaner alternative to using dynamic provider tokens.
+ * Service that initializes AWS publishers in the PublisherRegistry during module initialization.
  *
  * This implementation is AWS-specific and lives in messaging-aws-nest.
- * For RabbitMQ, a similar service would live in messaging-rabbitmq-nest.
- * For Kafka, it would live in messaging-kafka-nest.
+ * Other transports would have their own implementations:
+ * - RabbitMQ: messaging-rabbitmq-nest/PublisherRegistryInitializer
+ * - Kafka: messaging-kafka-nest/PublisherRegistryInitializer
+ * - NATS: messaging-nats-nest/PublisherRegistryInitializer
+ *
+ * The service expects publisher configurations with resolved destination values (actual queue/topic names).
+ * Use registerPublishersAsync() with ConfigService to resolve environment variables.
  *
  * @example
- * // Module configuration
- * MessagingAwsNestModule.registerPublishers([
- *   {
- *     key: 'company-registry',
- *     destination: 'COMPANY_REGISTRY_QUEUE',
- *     metadata: { transportType: 'sqs' }
- *   }
- * ])
+ * // Async registration with ConfigService
+ * MessagingAwsNestModule.registerPublishersAsync({
+ *   useFactory: (configService: ConfigService) => [
+ *     {
+ *       key: 'company-registry',
+ *       destination: configService.getOrThrow('COMPANY_REGISTRY_QUEUE'),
+ *       metadata: { transportType: 'sqs' }
+ *     }
+ *   ],
+ *   inject: [ConfigService]
+ * })
  */
 @Injectable()
 export class PublisherRegistryInitializer implements OnModuleInit {
@@ -44,7 +50,6 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     private readonly snsClient: SNSClient,
     @Inject(AWS_TRANSPORT_CONFIG)
     private readonly transportConfig: AwsMessagingConfig,
-    private readonly configService: ConfigService,
     @Inject(PUBLISHER_REGISTRY)
     private readonly publisherRegistry: PublisherRegistry,
     @Inject(PUBLISHER_CONFIGS)
@@ -61,16 +66,9 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     // Extract transport type from metadata (defaults to 'sqs' for backward compatibility)
     const transportType = (config.metadata?.transportType as 'sqs' | 'sns') ?? 'sqs';
 
-    // Get the queue/topic name - either directly from config.destination (if already resolved)
-    // or by looking it up in ConfigService (for backward compatibility with env var names)
-    let destinationName: string;
-    try {
-      // Try to get it from ConfigService first (backward compatible with env var names)
-      destinationName = this.configService.getOrThrow(config.destination);
-    } catch {
-      // If that fails, assume destination is already the actual value
-      destinationName = config.destination;
-    }
+    // config.destination should be the resolved queue/topic name
+    // (resolved by the useFactory in registerPublishersAsync)
+    const destinationName = config.destination;
 
     if (transportType === 'sqs') {
       const queueUrl = createQueueUrl(this.transportConfig, destinationName);
