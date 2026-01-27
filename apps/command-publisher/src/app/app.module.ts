@@ -16,7 +16,24 @@ import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-c
     }),
     DatabaseModule,
     MessagingCoreModule.forRoot(),
-    MessagingAwsNestModule,
+    MessagingAwsNestModule.forRoot(),
+    MessagingAwsNestModule.forFeature([
+      {
+        key: 'third-party-onboarding-manager',
+        queueName: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',
+        type: 'sqs',
+      },
+      {
+        key: 'company-registry',
+        queueName: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        type: 'sqs',
+      },
+      {
+        key: 'account-registry',
+        queueName: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        type: 'sqs',
+      },
+    ]),
   ],
   providers: [CommandPublisher, CommandOutboxPoller, CommandOutboxRepository],
 })
