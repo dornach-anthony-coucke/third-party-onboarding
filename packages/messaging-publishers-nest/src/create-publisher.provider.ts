@@ -19,11 +19,30 @@ import {
 import type { PublisherConfig } from './publisher-config.interface.js';
 
 /**
- * Creates a provider that registers a publisher into the PublisherRegistry
- * This allows on-demand registration of publishers in feature modules
+ * Creates a provider that registers an AWS publisher into the PublisherRegistry.
+ * This allows on-demand registration of publishers in feature modules.
  * 
- * @param config - Configuration for the publisher to create and register
+ * This implementation is AWS-specific. For other transports (RabbitMQ, NATS, Kafka),
+ * create similar factories in their respective packages (e.g., messaging-rabbitmq-nest).
+ * 
+ * @param config - Transport-agnostic publisher configuration
  * @returns NestJS Provider that performs the registration
+ * 
+ * @example
+ * // SQS publisher
+ * createPublisherProvider({
+ *   key: 'company-registry',
+ *   destination: 'COMPANY_REGISTRY_QUEUE',
+ *   metadata: { transportType: 'sqs' }
+ * })
+ * 
+ * @example
+ * // SNS publisher
+ * createPublisherProvider({
+ *   key: 'notifications',
+ *   destination: 'NOTIFICATIONS_TOPIC',
+ *   metadata: { transportType: 'sns' }
+ * })
  */
 export function createPublisherProvider(config: PublisherConfig): Provider {
   return {
@@ -35,26 +54,29 @@ export function createPublisherProvider(config: PublisherConfig): Provider {
       configService: ConfigService,
       publisherRegistry: PublisherRegistry,
     ) => {
-      if (config.type === 'sqs') {
+      // Extract transport type from metadata (defaults to 'sqs' for backward compatibility)
+      const transportType = (config.metadata?.transportType as 'sqs' | 'sns') ?? 'sqs';
+      
+      if (transportType === 'sqs') {
         const queueUrl = createQueueUrl(
           transportConfig,
-          configService.getOrThrow(config.queueName),
+          configService.getOrThrow(config.destination),
         );
         publisherRegistry.register(config.key, new SqsPublisher(sqsClient, queueUrl));
-      } else if (config.type === 'sns') {
+      } else if (transportType === 'sns') {
         const topicArn = createTopicArn(
           transportConfig,
-          configService.getOrThrow(config.queueName),
+          configService.getOrThrow(config.destination),
         );
         publisherRegistry.register(config.key, new SnsPublisher(snsClient, topicArn));
       } else {
         throw new Error(
-          `Unsupported publisher type: ${config.type}. Supported types are 'sqs' and 'sns'.`
+          `Unsupported AWS transport type: ${transportType}. Supported types are 'sqs' and 'sns'.`
         );
       }
 
       // Return a marker that the publisher was initialized
-      return { key: config.key, type: config.type, initialized: true };
+      return { key: config.key, transportType, initialized: true };
     },
     inject: [
       AWS_SQS_CLIENT_PROVIDER,

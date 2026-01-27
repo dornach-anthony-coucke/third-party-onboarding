@@ -21,18 +21,18 @@ import { MessagingPublishersModule } from '@third-party-onboarding-manager/messa
     MessagingPublishersModule.forFeature([ // Publisher registration
       {
         key: 'third-party-onboarding-manager',
-        queueName: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',
-        type: 'sqs',
+        destination: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
       },
       {
         key: 'company-registry',
-        queueName: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
-        type: 'sqs',
+        destination: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
       },
       {
         key: 'account-registry',
-        queueName: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
-        type: 'sqs',
+        destination: 'ACCOUNT_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+        metadata: { transportType: 'sqs' },
       },
     ]),
   ],
