@@ -73,21 +73,7 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     const transportType = (config.metadata?.transportType as 'sqs' | 'sns') ?? 'sqs';
 
     // Resolve queue name - either from provider token or env var name
-    let queueName: string;
-    try {
-      // Try to inject the destination as a provider token
-      const queuesConfig = this.injector.get(config.destination, null);
-      if (queuesConfig && typeof queuesConfig === 'object' && config.key in queuesConfig) {
-        // It's a configuration object, use the key to look up the queue name
-        queueName = queuesConfig[config.key];
-      } else {
-        // It's an environment variable name, retrieve it from ConfigService
-        queueName = this.configService.getOrThrow(config.destination);
-      }
-    } catch {
-      // Fallback: treat as environment variable name
-      queueName = this.configService.getOrThrow(config.destination);
-    }
+    const queueName = this.resolveQueueName(config);
 
     if (transportType === 'sqs') {
       const queueUrl = createQueueUrl(this.transportConfig, queueName);
@@ -100,5 +86,24 @@ export class PublisherRegistryInitializer implements OnModuleInit {
         `Unsupported AWS transport type: ${transportType}. Supported types are 'sqs' and 'sns'.`,
       );
     }
+  }
+
+  private resolveQueueName(config: PublisherConfig): string {
+    try {
+      // Try to inject the destination as a provider token
+      const queuesConfig = this.injector.get(config.destination, null);
+      if (queuesConfig && typeof queuesConfig === 'object') {
+        const queueName = queuesConfig[config.key];
+        // Validate that the queue name exists and is a string
+        if (typeof queueName === 'string' && queueName.length > 0) {
+          return queueName;
+        }
+      }
+    } catch {
+      // If injection fails, fall through to ConfigService
+    }
+
+    // Fallback: treat destination as environment variable name
+    return this.configService.getOrThrow(config.destination);
   }
 }
