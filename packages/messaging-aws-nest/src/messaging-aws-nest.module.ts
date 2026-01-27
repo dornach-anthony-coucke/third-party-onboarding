@@ -3,7 +3,7 @@ import { AwsTransportConfigProvider } from './providers/aws-transport-config.pro
 import { AwsSqsClientProvider } from './providers/aws-sqs-client.provider.js';
 import { AwsSnsClientProvider } from './providers/aws-sns-client.provider.js';
 import { PublisherRegistryInitializer } from './services/publisher-registry-initializer.service.js';
-import { PUBLISHER_CONFIGS_TOKEN } from './tokens/publisher-configs.token.js';
+import { PUBLISHER_CONFIGS } from './tokens/publisher-configs.token.js';
 import type { PublisherConfig } from './types/publisher-config.interface.js';
 
 @Module({})
@@ -22,7 +22,7 @@ export class MessagingAwsNestModule {
       module: MessagingAwsNestModule,
       providers: [
         {
-          provide: PUBLISHER_CONFIGS_TOKEN,
+          provide: PUBLISHER_CONFIGS,
           useValue: publisherConfigurations,
         },
         PublisherRegistryInitializer,

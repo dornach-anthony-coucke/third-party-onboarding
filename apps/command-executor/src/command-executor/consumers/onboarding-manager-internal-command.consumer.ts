@@ -13,7 +13,7 @@ import {
   AWS_TRANSPORT_CONFIG,
 } from '@third-party-onboarding-manager/messaging-aws-nest';
 import { ConfigService } from '@nestjs/config';
-import { MESSAGE_ROUTER } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { MESSAGE_ROUTER } from '@third-party-onboarding-manager/messaging-core-nest';
 
 @Injectable()
 export class OnboardingManagerInternalCommandConsumer extends AbstractQueueConsumer {
