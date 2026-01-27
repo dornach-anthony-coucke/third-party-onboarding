@@ -176,7 +176,7 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     @Inject(AWS_SQS_CLIENT_PROVIDER) private sqsClient: SQSClient,
     @Inject(AWS_SNS_CLIENT_PROVIDER) private snsClient: SNSClient,
     @Inject(PUBLISHER_REGISTRY) private publisherRegistry: PublisherRegistry,
-    @Inject('PUBLISHER_CONFIGS') private publisherConfigs: PublisherConfig[],
+    @Inject(PUBLISHER_CONFIGS_TOKEN) private publisherConfigs: PublisherConfig[],
   ) {}
 
   onModuleInit(): void {
@@ -200,7 +200,7 @@ export class PublisherRegistryInitializer implements OnModuleInit {
   constructor(
     @Inject(RABBITMQ_CHANNEL_PROVIDER) private channel: Channel,
     @Inject(PUBLISHER_REGISTRY) private publisherRegistry: PublisherRegistry,
-    @Inject('PUBLISHER_CONFIGS') private publisherConfigs: PublisherConfig[],
+    @Inject(PUBLISHER_CONFIGS_TOKEN) private publisherConfigs: PublisherConfig[],
     private configService: ConfigService,
   ) {}
 
