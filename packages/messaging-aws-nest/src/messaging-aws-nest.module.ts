@@ -32,7 +32,7 @@ export class MessagingAwsNestModule {
   }
 
   static registerPublishersAsync(options: {
-    useFactory: (configService: ConfigService) => PublisherConfig[];
+    useFactory: (...args: unknown[]) => PublisherConfig[] | Promise<PublisherConfig[]>;
     inject?: unknown[];
   }): DynamicModule {
     return {
