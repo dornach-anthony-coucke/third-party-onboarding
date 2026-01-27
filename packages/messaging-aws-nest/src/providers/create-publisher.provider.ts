@@ -11,19 +11,18 @@ import {
 } from '@third-party-onboarding-manager/messaging-aws';
 import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest-module';
 import type { PublisherRegistry } from '@third-party-onboarding-manager/messaging-core';
-import {
-  AWS_TRANSPORT_CONFIG,
-  AWS_SQS_CLIENT_PROVIDER,
-  AWS_SNS_CLIENT_PROVIDER,
-} from '@third-party-onboarding-manager/messaging-aws-nest';
-import type { PublisherConfig } from './publisher-config.interface.js';
+import { AWS_TRANSPORT_CONFIG } from '../tokens/aws-transport-config.token.js';
+import { AWS_SQS_CLIENT_PROVIDER } from '../tokens/sqs-client.token.js';
+import { AWS_SNS_CLIENT_PROVIDER } from '../tokens/sns-client.token.js';
+import type { PublisherConfig } from '../types/publisher-config.interface.js';
 
 /**
  * Creates a provider that registers an AWS publisher into the PublisherRegistry.
  * This allows on-demand registration of publishers in feature modules.
  * 
- * This implementation is AWS-specific. For other transports (RabbitMQ, NATS, Kafka),
- * create similar factories in their respective packages (e.g., messaging-rabbitmq-nest).
+ * This implementation is AWS-specific and lives in messaging-aws-nest.
+ * For RabbitMQ, a similar factory would live in messaging-rabbitmq-nest.
+ * For Kafka, it would live in messaging-kafka-nest.
  * 
  * @param config - Transport-agnostic publisher configuration
  * @returns NestJS Provider that performs the registration

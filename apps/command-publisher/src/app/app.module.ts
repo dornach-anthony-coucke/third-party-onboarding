@@ -7,7 +7,6 @@ import { CommandOutboxPoller } from './services/command-outbox-poller.service';
 import { CommandOutboxRepository } from './repositpories/command-outbox.repository';
 import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messaging-aws-nest';
 import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest-module';
-import { MessagingPublishersModule } from '@third-party-onboarding-manager/messaging-publishers-nest';
 
 @Module({
   imports: [
@@ -17,8 +16,8 @@ import { MessagingPublishersModule } from '@third-party-onboarding-manager/messa
     }),
     DatabaseModule,
     MessagingCoreModule.forRoot(),
-    MessagingAwsNestModule.forRoot(), // AWS infrastructure only
-    MessagingPublishersModule.forFeature([ // Publisher registration
+    MessagingAwsNestModule.forRoot(), // AWS infrastructure
+    MessagingAwsNestModule.forFeature([ // AWS publisher registration
       {
         key: 'third-party-onboarding-manager',
         destination: 'ONBOARDING_MANAGER_INTERNAL_COMMANDS_QUEUE',

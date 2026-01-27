@@ -1,17 +1,20 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { AwsTransportConfigProvider } from './providers/aws-transport-config.provider.js';
 import { AwsSqsClientProvider } from './providers/aws-sqs-client.provider.js';
 import { AwsSnsClientProvider } from './providers/aws-sns-client.provider.js';
+import { createPublisherProvider } from './providers/create-publisher.provider.js';
+import type { PublisherConfig } from './types/publisher-config.interface.js';
 
 /**
  * NestJS module that provides AWS messaging infrastructure (SQS/SNS clients and configuration).
  * 
- * This module is ONLY responsible for providing AWS clients and configuration.
- * It does NOT register publishers - use @third-party-onboarding-manager/messaging-publishers-nest for that.
+ * This module is responsible for:
+ * - Providing AWS clients and configuration (forRoot)
+ * - Registering AWS publishers into PublisherRegistry (forFeature)
  * 
  * Separation of concerns:
- * - This module: AWS infrastructure (clients, config)
- * - messaging-publishers-nest: Publisher registration
+ * - This module: AWS infrastructure + AWS publisher registration
+ * - messaging-rabbitmq-nest (future): RabbitMQ infrastructure + RabbitMQ publisher registration
  * - messaging-core-nest-module: Core abstractions (PublisherRegistry, MessageRouter)
  * 
  * @example
@@ -26,12 +29,12 @@ import { AwsSnsClientProvider } from './providers/aws-sns-client.provider.js';
  * export class ConsumerAppModule {}
  * 
  * @example
- * // App that publishes (use messaging-publishers-nest):
+ * // App that publishes:
  * @Module({
  *   imports: [
  *     MessagingCoreModule.forRoot(),
  *     MessagingAwsNestModule.forRoot(), // AWS infrastructure
- *     MessagingPublishersModule.forFeature([...]) // Publisher registration
+ *     MessagingAwsNestModule.forFeature([...]) // AWS publisher registration
  *   ]
  * })
  * export class PublisherAppModule {}
@@ -48,7 +51,7 @@ export class MessagingAwsNestModule {
    * - AWS_TRANSPORT_CONFIG - AWS configuration (region, account, endpoint)
    * 
    * Does NOT provide:
-   * - Publishers (use MessagingPublishersModule.forFeature() instead)
+   * - Publishers (use forFeature() instead)
    * 
    * @returns DynamicModule with AWS infrastructure providers
    */
@@ -66,6 +69,42 @@ export class MessagingAwsNestModule {
         AwsSnsClientProvider,
       ],
       global: true,
+    };
+  }
+
+  /**
+   * Registers AWS publishers into the PublisherRegistry.
+   * Use this in modules that need to publish messages via AWS SQS/SNS.
+   * 
+   * Requires:
+   * - MessagingCoreModule.forRoot() - Provides PublisherRegistry
+   * - MessagingAwsNestModule.forRoot() - Provides AWS clients
+   * 
+   * @param publishers - Array of AWS publisher configurations
+   * @returns DynamicModule with publisher registration providers
+   * 
+   * @example
+   * MessagingAwsNestModule.forFeature([
+   *   {
+   *     key: 'company-registry',
+   *     destination: 'COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE',
+   *     metadata: { transportType: 'sqs' }
+   *   },
+   *   {
+   *     key: 'notifications',
+   *     destination: 'NOTIFICATIONS_TOPIC',
+   *     metadata: { transportType: 'sns' }
+   *   }
+   * ])
+   */
+  static forFeature(publishers: PublisherConfig[]): DynamicModule {
+    const providers: Provider[] = publishers.map((config) =>
+      createPublisherProvider(config)
+    );
+
+    return {
+      module: MessagingAwsNestModule,
+      providers,
     };
   }
 }
