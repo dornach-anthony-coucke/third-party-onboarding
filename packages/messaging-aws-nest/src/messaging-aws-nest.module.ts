@@ -5,36 +5,14 @@ import { AwsSnsClientProvider } from './providers/aws-sns-client.provider.js';
 import { PublisherRegistryInitializer } from './services/publisher-registry-initializer.service.js';
 import { PUBLISHER_CONFIGS } from './tokens/publisher-configs.token.js';
 import type { PublisherConfig } from './types/publisher-config.interface.js';
-import {
-  onboardingManagerInternalCommandsQueueNameProvider,
-  companyRegistryPublicCommandsQueueNameProvider,
-  accountRegistryPublicCommandsQueueNameProvider,
-  queueNamesMapProvider,
-} from './providers/queue-names.provider.js';
 
 @Module({})
 export class MessagingAwsNestModule {
   static forRoot(): DynamicModule {
     return {
       module: MessagingAwsNestModule,
-      providers: [
-        AwsTransportConfigProvider,
-        AwsSqsClientProvider,
-        AwsSnsClientProvider,
-        onboardingManagerInternalCommandsQueueNameProvider,
-        companyRegistryPublicCommandsQueueNameProvider,
-        accountRegistryPublicCommandsQueueNameProvider,
-        queueNamesMapProvider,
-      ],
-      exports: [
-        AwsTransportConfigProvider,
-        AwsSqsClientProvider,
-        AwsSnsClientProvider,
-        onboardingManagerInternalCommandsQueueNameProvider,
-        companyRegistryPublicCommandsQueueNameProvider,
-        accountRegistryPublicCommandsQueueNameProvider,
-        queueNamesMapProvider,
-      ],
+      providers: [AwsTransportConfigProvider, AwsSqsClientProvider, AwsSnsClientProvider],
+      exports: [AwsTransportConfigProvider, AwsSqsClientProvider, AwsSnsClientProvider],
       global: true,
     };
   }

@@ -1,1 +1,0 @@
-export const QUEUE_NAMES_MAP = 'QUEUE_NAMES_MAP';

@@ -1,6 +1,7 @@
-import { Injectable, OnModuleInit, Inject } from '@nestjs/common';
+import { Injectable, OnModuleInit, Inject, Optional, Injector } from '@nestjs/common';
 import type { SQSClient } from '@aws-sdk/client-sqs';
 import type { SNSClient } from '@aws-sdk/client-sns';
+import { ConfigService } from '@nestjs/config';
 import {
   createQueueUrl,
   createTopicArn,
@@ -15,7 +16,6 @@ import { AWS_SQS_CLIENT_PROVIDER } from '../tokens/sqs-client.token.js';
 import { AWS_SNS_CLIENT_PROVIDER } from '../tokens/sns-client.token.js';
 import { PUBLISHER_CONFIGS } from '../tokens/publisher-configs.token.js';
 import type { PublisherConfig } from '../types/publisher-config.interface.js';
-import { QUEUE_NAMES_MAP } from '../tokens/queue-names-map.token.js';
 
 /**
  * Service that initializes publishers in the PublisherRegistry during module initialization.
@@ -25,15 +25,22 @@ import { QUEUE_NAMES_MAP } from '../tokens/queue-names-map.token.js';
  * For RabbitMQ, a similar service would live in messaging-rabbitmq-nest.
  * For Kafka, it would live in messaging-kafka-nest.
  *
- * Queue names are injected as a Map that uses ConfigService to retrieve
- * configuration values, making the code cleaner, more testable, and extensible.
- *
  * @example
- * // Module configuration
+ * // Module configuration with env var name
  * MessagingAwsNestModule.registerPublishers([
  *   {
  *     key: 'company-registry',
- *     destination: COMPANY_REGISTRY_PUBLIC_COMMANDS_QUEUE_NAME,
+ *     destination: 'COMPANY_REGISTRY_QUEUE',
+ *     metadata: { transportType: 'sqs' }
+ *   }
+ * ])
+ * 
+ * @example
+ * // Module configuration with provider token
+ * MessagingAwsNestModule.registerPublishers([
+ *   {
+ *     key: 'company-registry',
+ *     destination: QUEUES_CONFIGURATION,
  *     metadata: { transportType: 'sqs' }
  *   }
  * ])
@@ -47,12 +54,12 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     private readonly snsClient: SNSClient,
     @Inject(AWS_TRANSPORT_CONFIG)
     private readonly transportConfig: AwsMessagingConfig,
+    private readonly configService: ConfigService,
     @Inject(PUBLISHER_REGISTRY)
     private readonly publisherRegistry: PublisherRegistry,
     @Inject(PUBLISHER_CONFIGS)
     private readonly publisherConfigs: PublisherConfig[],
-    @Inject(QUEUE_NAMES_MAP)
-    private readonly queueNamesMap: Map<string, string>,
+    private readonly injector: Injector,
   ) {}
 
   onModuleInit(): void {
@@ -65,8 +72,22 @@ export class PublisherRegistryInitializer implements OnModuleInit {
     // Extract transport type from metadata (defaults to 'sqs' for backward compatibility)
     const transportType = (config.metadata?.transportType as 'sqs' | 'sns') ?? 'sqs';
 
-    // Resolve queue name from the injected Map or use destination directly (backward compatibility)
-    const queueName = this.queueNamesMap.get(config.destination) ?? config.destination;
+    // Resolve queue name - either from provider token or env var name
+    let queueName: string;
+    try {
+      // Try to inject the destination as a provider token
+      const queuesConfig = this.injector.get(config.destination, null);
+      if (queuesConfig && typeof queuesConfig === 'object' && config.key in queuesConfig) {
+        // It's a configuration object, use the key to look up the queue name
+        queueName = queuesConfig[config.key];
+      } else {
+        // It's an environment variable name, retrieve it from ConfigService
+        queueName = this.configService.getOrThrow(config.destination);
+      }
+    } catch {
+      // Fallback: treat as environment variable name
+      queueName = this.configService.getOrThrow(config.destination);
+    }
 
     if (transportType === 'sqs') {
       const queueUrl = createQueueUrl(this.transportConfig, queueName);
