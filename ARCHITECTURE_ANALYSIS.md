@@ -106,7 +106,7 @@ private getClientForDestination(destinationBoundedContext: string): MessagePubli
 - La logique du pattern Outbox est mélangée avec la logique métier spécifique
 - Intervalle de polling hardcodé (ligne 17: `Number(process.env.COMMAND_OUTBOX_POLL_INTERVAL_MS ?? 8000)`)
 - Pas de réutilisabilité pour d'autres types d'outbox (events, etc.)
-- Logique de polling/retry non configurablee
+- Logique de polling/retry non configurable
 
 **Impact:**
 - Code dupliqué si on veut un event-outbox-poller similaire
