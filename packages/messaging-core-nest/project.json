@@ -1,7 +1,7 @@
 {
-  "name": "messaging-core-nest-module",
+  "name": "messaging-core-nest",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/messaging-core-nest-module/src",
+  "sourceRoot": "packages/messaging-core-nest/src",
   "implicitDependencies": ["messaging-core"],
   "projectType": "library",
   "tags": ["type:package", "scope:messaging"],

@@ -58,16 +58,16 @@
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
     "@eslint/js": "^9.39.2",
-    "@nx/js": "^22.4.1",
+    "@nx/js": "^22.4.2",
     "@swc/core": "^1.15.10",
     "@types/node": "^20.19.30",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-prettier": "^5.5.5",
-    "nx": "^22.4.1",
+    "nx": "^22.4.2",
     "prettier": "^3.8.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.53.1"
+    "typescript-eslint": "^8.54.0"
   },
   "engines": {
     "node": ">=18.0.0",

@@ -28,7 +28,7 @@
     "@third-party-onboarding-manager/messaging-core": "workspace:*",
     "@third-party-onboarding-manager/messaging-aws": "workspace:*",
     "@third-party-onboarding-manager/messaging-aws-nest": "workspace:*",
-    "@third-party-onboarding-manager/messaging-core-nest-module": "workspace:*",
+    "@third-party-onboarding-manager/messaging-core-nest": "workspace:*",
     "@third-party-onboarding-manager/drizzle-core": "workspace:*",
     "@third-party-onboarding-manager/mapper-registry-nest-module": "workspace:*",
     "class-transformer": "^0.5.1",

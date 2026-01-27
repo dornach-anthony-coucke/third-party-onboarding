@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { types as drizzleCoreTypes } from '@third-party-onboarding-manager/drizzle-core';
 import { MessageEnvelope, PublisherRegistry } from '@third-party-onboarding-manager/messaging-core';
-import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest';
 import { randomUUID } from 'crypto';
 
 @Injectable()

@@ -1,5 +1,5 @@
 {
-  "name": "@third-party-onboarding-manager/messaging-core-nest-module",
+  "name": "@third-party-onboarding-manager/messaging-core-nest",
   "version": "0.0.1",
   "private": true,
   "description": "Reusable NestJS messaging module based on messaging-core",

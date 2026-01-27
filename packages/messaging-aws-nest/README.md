@@ -26,7 +26,7 @@ This module is **AWS-specific and assumes it**. Each messaging transport (AWS, R
 messaging-aws-nest     → AWS infrastructure + AWS publishers
 messaging-rabbitmq-nest (future) → RabbitMQ infrastructure + RabbitMQ publishers
 messaging-kafka-nest (future)    → Kafka infrastructure + Kafka publishers
-messaging-core-nest-module       → Core abstractions (PublisherRegistry, MessageRouter)
+messaging-core-nest       → Core abstractions (PublisherRegistry, MessageRouter)
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ Consumer apps (like command-executor, orchestrator) only need AWS clients:
 ```typescript
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest';
 import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messaging-aws-nest';
 
 @Module({
@@ -59,7 +59,7 @@ Publisher apps import the separate `messaging-publishers-nest` module:
 ```typescript
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { MessagingCoreModule } from '@third-party-onboarding-manager/messaging-core-nest';
 import { MessagingAwsNestModule } from '@third-party-onboarding-manager/messaging-aws-nest';
 import { MessagingPublishersModule } from '@third-party-onboarding-manager/messaging-publishers-nest';
 
@@ -123,7 +123,7 @@ Use `PublisherRegistry` instead of direct AWS clients:
 
 ```typescript
 import { Injectable, Inject } from '@nestjs/common';
-import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest-module';
+import { PUBLISHER_REGISTRY } from '@third-party-onboarding-manager/messaging-core-nest';
 import type { PublisherRegistry } from '@third-party-onboarding-manager/messaging-core';
 
 @Injectable()

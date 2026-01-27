@@ -12,7 +12,7 @@ import {
   ConsumerRunner,
   MessagingCoreModule,
   MESSAGE_LISTENERS,
-} from '@third-party-onboarding-manager/messaging-core-nest-module';
+} from '@third-party-onboarding-manager/messaging-core-nest';
 
 @Module({
   imports: [

@@ -15,7 +15,7 @@
       "dependsOn": [
         "database-nest-module:build",
         "drizzle-core:build",
-        "messaging-core-nest-module:build",
+        "messaging-core-nest:build",
         "messaging-aws-nest",
         "mapper-registry-nest-module:build"
       ]

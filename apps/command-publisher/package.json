@@ -23,6 +23,7 @@
     "@nestjs/platform-express": "^11.1.11",
     "@third-party-onboarding-manager/database-nest-module": "workspace:*",
     "@third-party-onboarding-manager/drizzle-core": "workspace:*",
+    "@third-party-onboarding-manager/messaging-core-nest": "workspace:*",
     "@third-party-onboarding-manager/messaging-aws-nest": "workspace:*",
     "@third-party-onboarding-manager/messaging-core": "workspace:*",
     "drizzle-orm": "^0.44.7",
