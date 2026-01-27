@@ -1,22 +1,32 @@
 # @third-party-onboarding-manager/messaging-aws-nest
 
-NestJS module for AWS messaging infrastructure (SQS/SNS clients and configuration).
+NestJS module for AWS messaging (SQS/SNS clients, configuration, and publisher registration).
 
 ## Purpose
 
-This module provides **ONLY AWS infrastructure** - it does NOT register publishers.
+This module provides **everything you need for AWS messaging**:
 
-✅ Provides AWS SQS and SNS clients
+✅ Provides AWS SQS and SNS clients (`forRoot`)
 ✅ Provides AWS configuration (region, account, endpoint)
+✅ Registers AWS publishers into PublisherRegistry (`forFeature`)
 ✅ Used by both consumer and publisher apps
-❌ Does NOT register publishers (use `@third-party-onboarding-manager/messaging-publishers-nest` for that)
 
-## Clean Separation of Concerns
+## Architecture Philosophy
+
+This module is **AWS-specific and assumes it**. Each messaging transport (AWS, RabbitMQ, Kafka, NATS) has its own self-contained module with:
+- Infrastructure (clients, config)
+- Publisher registration logic
+- Transport-specific implementation
+
+**Principle**: Convention over code sharing. Each transport follows the same pattern but with its own implementation.
+
+## Clean Separation
 
 ```
-messaging-aws-nest          → AWS infrastructure (clients, config)
-messaging-publishers-nest   → Publisher registration
-messaging-core-nest-module  → Core abstractions (PublisherRegistry, MessageRouter)
+messaging-aws-nest     → AWS infrastructure + AWS publishers
+messaging-rabbitmq-nest (future) → RabbitMQ infrastructure + RabbitMQ publishers
+messaging-kafka-nest (future)    → Kafka infrastructure + Kafka publishers
+messaging-core-nest-module       → Core abstractions (PublisherRegistry, MessageRouter)
 ```
 
 ## Usage
